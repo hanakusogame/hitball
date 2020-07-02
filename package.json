@@ -1,0 +1,29 @@
+{
+  "name": "@akashic-extension/akashic-software-keyboard-sample",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Software keyboard sample for Akashic Engine",
+  "scripts": {
+    "build": "rimraf ./script && tsc && akashic-cli-scan asset script",
+    "update": "akashic-cli-scan asset && akashic-cli-scan globalScripts",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "start": "akashic-sandbox .",
+    "test": "jest"
+  },
+  "author": "DWANGO Co., Ltd.",
+  "license": "MIT",
+  "devDependencies": {
+    "@akashic/akashic-cli-scan": "~0.5.2",
+    "@akashic/akashic-engine": "~2.6.2",
+    "@akashic/akashic-sandbox": "~0.16.3",
+    "@atsumaru/api-types": "github:atsumaru/api-types#master",
+    "jest": "25.3.0",
+    "rimraf": "3.0.2",
+    "tslint": "6.1.1",
+    "typescript": "3.8.3"
+  },
+  "dependencies": {
+    "@akashic-extension/akashic-label": "^2.0.7",
+    "@akashic-extension/akashic-timeline": "^2.3.0"
+  }
+}

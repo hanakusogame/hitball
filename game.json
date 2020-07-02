@@ -1,0 +1,836 @@
+{
+	"width": 640,
+	"height": 360,
+	"fps": 30,
+	"main": "./script/main.js",
+	"assets": {
+		"main": {
+			"type": "script",
+			"path": "script/main.js",
+			"global": true
+		},
+		"backSpaceKey": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/backSpaceKey.png"
+		},
+		"inputtingLabelBack": {
+			"type": "image",
+			"width": 1264,
+			"height": 112,
+			"path": "image/inputtingLabelBack.png"
+		},
+		"a_a": {
+			"type": "image",
+			"width": 152,
+			"height": 74,
+			"path": "image/key_alpha/a_a.png"
+		},
+		"a_b": {
+			"type": "image",
+			"width": 152,
+			"height": 74,
+			"path": "image/key_alpha/a_b.png"
+		},
+		"a_c": {
+			"type": "image",
+			"width": 152,
+			"height": 74,
+			"path": "image/key_alpha/a_c.png"
+		},
+		"a_d": {
+			"type": "image",
+			"width": 153,
+			"height": 74,
+			"path": "image/key_alpha/a_d.png"
+		},
+		"a_e": {
+			"type": "image",
+			"width": 152,
+			"height": 74,
+			"path": "image/key_alpha/a_e.png"
+		},
+		"a_f": {
+			"type": "image",
+			"width": 152,
+			"height": 74,
+			"path": "image/key_alpha/a_f.png"
+		},
+		"a_g": {
+			"type": "image",
+			"width": 152,
+			"height": 74,
+			"path": "image/key_alpha/a_g.png"
+		},
+		"a_h": {
+			"type": "image",
+			"width": 153,
+			"height": 74,
+			"path": "image/key_alpha/a_h.png"
+		},
+		"a_i": {
+			"type": "image",
+			"width": 152,
+			"height": 75,
+			"path": "image/key_alpha/a_i.png"
+		},
+		"a_j": {
+			"type": "image",
+			"width": 152,
+			"height": 75,
+			"path": "image/key_alpha/a_j.png"
+		},
+		"a_k": {
+			"type": "image",
+			"width": 152,
+			"height": 75,
+			"path": "image/key_alpha/a_k.png"
+		},
+		"a_l": {
+			"type": "image",
+			"width": 153,
+			"height": 75,
+			"path": "image/key_alpha/a_l.png"
+		},
+		"a_m": {
+			"type": "image",
+			"width": 152,
+			"height": 75,
+			"path": "image/key_alpha/a_m.png"
+		},
+		"a_n": {
+			"type": "image",
+			"width": 152,
+			"height": 75,
+			"path": "image/key_alpha/a_n.png"
+		},
+		"a_o": {
+			"type": "image",
+			"width": 152,
+			"height": 75,
+			"path": "image/key_alpha/a_o.png"
+		},
+		"a_p": {
+			"type": "image",
+			"width": 153,
+			"height": 75,
+			"path": "image/key_alpha/a_p.png"
+		},
+		"a_q": {
+			"type": "image",
+			"width": 152,
+			"height": 74,
+			"path": "image/key_alpha/a_q.png"
+		},
+		"a_r": {
+			"type": "image",
+			"width": 152,
+			"height": 74,
+			"path": "image/key_alpha/a_r.png"
+		},
+		"a_s": {
+			"type": "image",
+			"width": 152,
+			"height": 74,
+			"path": "image/key_alpha/a_s.png"
+		},
+		"a_t": {
+			"type": "image",
+			"width": 153,
+			"height": 74,
+			"path": "image/key_alpha/a_t.png"
+		},
+		"a_u": {
+			"type": "image",
+			"width": 152,
+			"height": 74,
+			"path": "image/key_alpha/a_u.png"
+		},
+		"a_v": {
+			"type": "image",
+			"width": 152,
+			"height": 74,
+			"path": "image/key_alpha/a_v.png"
+		},
+		"a_w": {
+			"type": "image",
+			"width": 152,
+			"height": 74,
+			"path": "image/key_alpha/a_w.png"
+		},
+		"a_x": {
+			"type": "image",
+			"width": 153,
+			"height": 74,
+			"path": "image/key_alpha/a_x.png"
+		},
+		"a_y": {
+			"type": "image",
+			"width": 152,
+			"height": 75,
+			"path": "image/key_alpha/a_y.png"
+		},
+		"a_z": {
+			"type": "image",
+			"width": 152,
+			"height": 75,
+			"path": "image/key_alpha/a_z.png"
+		},
+		"a": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/a.png"
+		},
+		"e": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/e.png"
+		},
+		"ha": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ha.png"
+		},
+		"he": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/he.png"
+		},
+		"hi": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/hi.png"
+		},
+		"ho": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ho.png"
+		},
+		"hu": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/hu.png"
+		},
+		"i": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/i.png"
+		},
+		"ka": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ka.png"
+		},
+		"ke": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ke.png"
+		},
+		"ki": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ki.png"
+		},
+		"ko": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ko.png"
+		},
+		"ku": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ku.png"
+		},
+		"ma": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ma.png"
+		},
+		"me": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/me.png"
+		},
+		"mi": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/mi.png"
+		},
+		"mo": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/mo.png"
+		},
+		"mu": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/mu.png"
+		},
+		"na": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/na.png"
+		},
+		"ne": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ne.png"
+		},
+		"ni": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ni.png"
+		},
+		"nn": {
+			"type": "image",
+			"width": 120,
+			"height": 72,
+			"path": "image/key_kana/nn.png"
+		},
+		"no": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/no.png"
+		},
+		"nu": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/nu.png"
+		},
+		"o": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/o.png"
+		},
+		"ra": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ra.png"
+		},
+		"re": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/re.png"
+		},
+		"ri": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ri.png"
+		},
+		"ro": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ro.png"
+		},
+		"ru": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ru.png"
+		},
+		"sa": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/sa.png"
+		},
+		"se": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/se.png"
+		},
+		"semiVoiced": {
+			"type": "image",
+			"width": 120,
+			"height": 72,
+			"path": "image/key_kana/semiVoiced.png"
+		},
+		"si": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/si.png"
+		},
+		"small": {
+			"type": "image",
+			"width": 120,
+			"height": 72,
+			"path": "image/key_kana/small.png"
+		},
+		"so": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/so.png"
+		},
+		"su": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/su.png"
+		},
+		"ta": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ta.png"
+		},
+		"te": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/te.png"
+		},
+		"ti": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/ti.png"
+		},
+		"to": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/to.png"
+		},
+		"tu": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/tu.png"
+		},
+		"u": {
+			"type": "image",
+			"width": 72,
+			"height": 72,
+			"path": "image/key_kana/u.png"
+		},
+		"voiced": {
+			"type": "image",
+			"width": 120,
+			"height": 72,
+			"path": "image/key_kana/voiced.png"
+		},
+		"wa": {
+			"type": "image",
+			"width": 120,
+			"height": 72,
+			"path": "image/key_kana/wa.png"
+		},
+		"wo": {
+			"type": "image",
+			"width": 120,
+			"height": 72,
+			"path": "image/key_kana/wo.png"
+		},
+		"ya": {
+			"type": "image",
+			"width": 120,
+			"height": 72,
+			"path": "image/key_kana/ya.png"
+		},
+		"yo": {
+			"type": "image",
+			"width": 120,
+			"height": 72,
+			"path": "image/key_kana/yo.png"
+		},
+		"yu": {
+			"type": "image",
+			"width": 120,
+			"height": 72,
+			"path": "image/key_kana/yu.png"
+		},
+		"sym_0": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_0.png"
+		},
+		"sym_1": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_1.png"
+		},
+		"sym_10": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_10.png"
+		},
+		"sym_11": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_11.png"
+		},
+		"sym_12": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_12.png"
+		},
+		"sym_13": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_13.png"
+		},
+		"sym_14": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_14.png"
+		},
+		"sym_15": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_15.png"
+		},
+		"sym_16": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_16.png"
+		},
+		"sym_17": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_17.png"
+		},
+		"sym_18": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_18.png"
+		},
+		"sym_19": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_19.png"
+		},
+		"sym_2": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_2.png"
+		},
+		"sym_3": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_3.png"
+		},
+		"sym_4": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_4.png"
+		},
+		"sym_5": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_5.png"
+		},
+		"sym_6": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_6.png"
+		},
+		"sym_7": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_7.png"
+		},
+		"sym_8": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_8.png"
+		},
+		"sym_9": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/sym_9.png"
+		},
+		"define": {
+			"type": "script",
+			"path": "script/define.js",
+			"global": true
+		},
+		"Keyboard": {
+			"type": "script",
+			"path": "script/Keyboard.js",
+			"global": true
+		},
+		"KeyboardParameterObject": {
+			"type": "script",
+			"path": "script/KeyboardParameterObject.js",
+			"global": true
+		},
+		"MultiKeyboard": {
+			"type": "script",
+			"path": "script/MultiKeyboard.js",
+			"global": true
+		},
+		"toAlphaLetters": {
+			"type": "image",
+			"width": 180,
+			"height": 72,
+			"path": "image/toAlphaLetters.png"
+		},
+		"toKanaLetters": {
+			"type": "image",
+			"width": 180,
+			"height": 72,
+			"path": "image/toKanaLetters.png"
+		},
+		"toSymLetters": {
+			"type": "image",
+			"width": 180,
+			"height": 72,
+			"path": "image/toSymLetters.png"
+		},
+		"close": {
+			"type": "image",
+			"width": 256,
+			"height": 88,
+			"path": "image/close.png"
+		},
+		"open": {
+			"type": "image",
+			"width": 256,
+			"height": 88,
+			"path": "image/open.png"
+		},
+		"notosansFont": {
+			"type": "image",
+			"width": 720,
+			"height": 1008,
+			"path": "image/notosansFont.png"
+		},
+		"notosansGlyph": {
+			"type": "text",
+			"path": "text/notosansGlyph.json"
+		},
+		"d_0": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/d_0.png"
+		},
+		"d_1": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/d_1.png"
+		},
+		"d_2": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/d_2.png"
+		},
+		"d_3": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/d_3.png"
+		},
+		"d_4": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/d_4.png"
+		},
+		"d_5": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/d_5.png"
+		},
+		"d_6": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/d_6.png"
+		},
+		"d_7": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/d_7.png"
+		},
+		"d_8": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/d_8.png"
+		},
+		"d_9": {
+			"type": "image",
+			"width": 110,
+			"height": 72,
+			"path": "image/key_sym/d_9.png"
+		},
+		"Input": {
+			"type": "script",
+			"path": "script/Input.js",
+			"global": true
+		},
+		"game": {
+			"type": "script",
+			"path": "script/game.js",
+			"global": true
+		},
+		"ball": {
+			"type": "image",
+			"width": 64,
+			"height": 32,
+			"path": "image/ball.png"
+		},
+		"button": {
+			"type": "image",
+			"width": 256,
+			"height": 88,
+			"path": "image/button.png"
+		},
+		"court": {
+			"type": "image",
+			"width": 640,
+			"height": 340,
+			"path": "image/court.png"
+		},
+		"cursor": {
+			"type": "image",
+			"width": 210,
+			"height": 70,
+			"path": "image/cursor.png"
+		},
+		"player_body": {
+			"type": "image",
+			"width": 300,
+			"height": 400,
+			"path": "image/player_body.png"
+		},
+		"player_head": {
+			"type": "image",
+			"width": 300,
+			"height": 100,
+			"path": "image/player_head.png"
+		},
+		"player": {
+			"type": "script",
+			"path": "script/player.js",
+			"global": true
+		},
+		"Ball": {
+			"type": "script",
+			"path": "script/Ball.js",
+			"global": true
+		},
+		"effect": {
+			"type": "image",
+			"width": 360,
+			"height": 120,
+			"path": "image/effect.png"
+		},
+		"bgm": {
+			"type": "audio",
+			"path": "audio/bgm",
+			"systemId": "music",
+			"duration": 32000
+		},
+		"se_hit": {
+			"type": "audio",
+			"path": "audio/se_hit",
+			"systemId": "sound",
+			"duration": 564
+		},
+		"se_move": {
+			"type": "audio",
+			"path": "audio/se_move",
+			"systemId": "sound",
+			"duration": 105
+		},
+		"se_start": {
+			"type": "audio",
+			"path": "audio/se_start",
+			"systemId": "sound",
+			"duration": 1701
+		},
+		"se_timeup": {
+			"type": "audio",
+			"path": "audio/se_timeup",
+			"systemId": "sound",
+			"duration": 1080
+		},
+		"Ranking": {
+			"type": "script",
+			"path": "script/Ranking.js",
+			"global": true
+		}
+	},
+	"environment": {
+		"sandbox-runtime": "2",
+		"niconico": {
+			"supportedModes": [
+				"multi"
+			]
+		}
+	},
+	"globalScripts": [
+		"node_modules/@akashic-extension/akashic-label/lib/DefaultRubyParser.js",
+		"node_modules/@akashic-extension/akashic-label/lib/FragmentDrawInfo.js",
+		"node_modules/@akashic-extension/akashic-label/lib/Label.js",
+		"node_modules/@akashic-extension/akashic-label/lib/RubyParser.js",
+		"node_modules/@akashic-extension/akashic-label/lib/index.js",
+		"node_modules/@akashic-extension/akashic-timeline/lib/ActionType.js",
+		"node_modules/@akashic-extension/akashic-timeline/lib/Easing.js",
+		"node_modules/@akashic-extension/akashic-timeline/lib/Timeline.js",
+		"node_modules/@akashic-extension/akashic-timeline/lib/Tween.js",
+		"node_modules/@akashic-extension/akashic-timeline/lib/index.js"
+	],
+	"moduleMainScripts": {
+		"@akashic-extension/akashic-label": "node_modules/@akashic-extension/akashic-label/lib/index.js",
+		"@akashic-extension/akashic-timeline": "node_modules/@akashic-extension/akashic-timeline/lib/index.js"
+	}
+}
