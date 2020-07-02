@@ -150,8 +150,8 @@ export class Game extends g.E {
 			touchable: true,
 			local: true
 		});
-		this.append(buttonBGM);
-		
+		localE.append(buttonBGM);
+
 		buttonBGM.pointDown.add(() => {
 			if (buttonBGM.cssColor === "white") {
 				bgm.changeVolume(0);
@@ -186,7 +186,7 @@ export class Game extends g.E {
 			touchable: true,
 			local: true
 		});
-		this.append(buttonSE);
+		localE.append(buttonSE);
 
 		const labelSE = new g.Label({
 			scene: scene,

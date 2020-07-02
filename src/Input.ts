@@ -93,7 +93,7 @@ export class Input extends g.E {
 		//ヘルプ
 		const helpLabel = new Label({
 			scene: scene,
-			text: "ボールをぶつけ合うゲームです\r3回ぶつかるか場外に出ると退場\r自機をクリックでボールが取れます\r制限時間は2分、参加人数無制限\r最後まで生き残った人の勝ち",
+			text: "ボールをぶつけ合うゲームです\r3回ぶつかるか場外に出ると退場\r自機をクリックでボールが取れます\r最後まで生き残った人の勝ち\r参加人数は無制限です",
 			textColor: "black",
 			width: 1000,
 			y: 150,
