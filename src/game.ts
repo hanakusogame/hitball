@@ -5,7 +5,7 @@ import { Ranking } from "./Ranking";
 
 export class Game extends g.E {
 
-	public start: (players: { [key: string]: string }) => void;
+	public start: (players: { [key: string]: string }, life: number, time: number) => void;
 
 	constructor(pram: g.EParameterObject) {
 		super(pram);
@@ -151,6 +151,7 @@ export class Game extends g.E {
 			local: true
 		});
 		this.append(buttonBGM);
+		
 		buttonBGM.pointDown.add(() => {
 			if (buttonBGM.cssColor === "white") {
 				bgm.changeVolume(0);
@@ -223,6 +224,22 @@ export class Game extends g.E {
 
 			playSound("se_timeup", seVol);
 		}
+
+		//投げる
+		const throwBall = (p: Player) => {
+			ball.isMove = true;
+			ball.isCatch = false;
+			ball.moveY = Math.sin(p.radian);
+			ball.moveX = Math.cos(p.radian);
+			ball.speed = (p.speed + 2);
+			p.isCatch = false;
+
+			//自分の投げたボールに当たらないように無敵時間を作る
+			p.isCollision = false;
+			scene.setTimeout(() => { p.isCollision = true }, 700);
+
+			playSound("se_move", seVol);
+		};
 
 		//ゲームループ
 		this.update.add(() => {
@@ -321,9 +338,7 @@ export class Game extends g.E {
 								labelInfo.text = "HIT " + p.name;
 							}
 							labelInfo.invalidate();
-
 							effect.destroy();
-
 						});
 
 						scene.setTimeout(() => {
@@ -334,7 +349,6 @@ export class Game extends g.E {
 						p.hit(ball.moveX);
 
 						playSound("se_hit", seVol);
-
 					}
 				}
 
@@ -343,7 +357,16 @@ export class Game extends g.E {
 					ball.x = p.x + (p.width - ball.width) / 2 + (20 * p.direction);
 					ball.y = p.y + (p.height - ball.height) / 2 + 8;
 					ball.modified();
+					p.time += (1 / 30);
+				} else {
+					p.time = 0;
 				}
+
+				//ボールを長く掴んでいる場合強制的に投げる
+				if (p.time > 3) {
+					throwBall(p);
+				}
+
 
 				if (!p.isMove || p.isDie) continue;
 
@@ -365,18 +388,7 @@ export class Game extends g.E {
 					p.stop();
 					//ボールを持っていたら投げる
 					if (p.isCatch) {
-						ball.isMove = true;
-						ball.isCatch = false;
-						ball.moveY = Math.sin(p.radian);
-						ball.moveX = Math.cos(p.radian);
-						ball.speed = (p.speed + 2);
-						p.isCatch = false;
-
-						//自分の投げたボールに当たらないように無敵時間を作る
-						p.isCollision = false;
-						scene.setTimeout(() => { p.isCollision = true }, 700);
-
-						playSound("se_move", seVol);
+						throwBall(p);
 					}
 				}
 
@@ -466,12 +478,15 @@ export class Game extends g.E {
 		});
 
 		//ゲーム開始
-		this.start = (users: { [key: string]: string }) => {
+		this.start = (users: { [key: string]: string }, life: number, time: number) => {
+
+			timeLimit = time * 60;
+
 			//プレイヤー生成
 			for (let id in users) {
 				const name = users[id];
 				const src = scene.assets["player"] as g.ImageAsset;
-				const player = new Player(scene, id, name, true, font);
+				const player = new Player(scene, id, name, life, true, font);
 
 				playerE.append(player);
 				players[id] = player;
@@ -491,7 +506,7 @@ export class Game extends g.E {
 					const name = "bot" + (i + 1);
 					const src = scene.assets["player"] as g.ImageAsset;
 					const id = "" + i;
-					const player = new Player(scene, id, name, false, font);
+					const player = new Player(scene, id, name,life, false, font);
 
 					playerE.append(player);
 					players[id] = player;

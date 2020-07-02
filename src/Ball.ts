@@ -10,7 +10,7 @@ export class Ball extends g.Sprite {
 	public speed: number;
 	public stop: () => void;
 	public catch: () => void;
-
+	
 	constructor(scene: g.Scene) {
 		super({
 			scene: scene,

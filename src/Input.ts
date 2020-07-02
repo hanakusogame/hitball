@@ -12,6 +12,8 @@ const enum ButtonState {
 
 export class Input extends g.E {
 	public users: { [key: string]: string };
+	public time: number;
+	public life: number;
 	public endEvent: () => void;
 
 	constructor(pram: g.EParameterObject) {
@@ -19,6 +21,8 @@ export class Input extends g.E {
 		const scene = pram.scene;
 		const timeline = new Timeline(scene);
 		this.users = {};
+		this.time = 2;
+		this.life = 3;
 
 		const base = new g.E({
 			scene: scene,
@@ -72,6 +76,7 @@ export class Input extends g.E {
 		});
 		base.append(numLabel);
 
+		//情報表示(未使用)
 		const infoLabel = new Label({
 			scene: scene,
 			text: "",
@@ -85,6 +90,7 @@ export class Input extends g.E {
 		});
 		base.append(infoLabel);
 
+		//ヘルプ
 		const helpLabel = new Label({
 			scene: scene,
 			text: "ボールをぶつけ合うゲームです\r3回ぶつかるか場外に出ると退場\r自機をクリックでボールが取れます\r制限時間は2分、参加人数無制限\r最後まで生き残った人の勝ち",
@@ -97,6 +103,87 @@ export class Input extends g.E {
 			textAlign: g.TextAlign.Left
 		});
 		base.append(helpLabel);
+
+		//ライフ変更用
+		let life = 2;
+		base.append(new g.Label({
+			scene: scene,
+			x: 350,
+			y: 460,
+			font: font,
+			fontSize: 40,
+			text: "ライフ"
+		}));
+
+		const sprLife = new g.FilledRect({
+			scene: scene,
+			x: 400,
+			y: 510,
+			width: 280,
+			height: 80,
+			cssColor: "white",
+			touchable: true
+		});
+		base.append(sprLife);
+
+		const labelLife = new g.Label({
+			scene: scene,
+			x: 120,
+			y: 10,
+			font: font,
+			fontSize: 50,
+			text: "3",
+		});
+		sprLife.append(labelLife);
+
+		sprLife.pointDown.add(e => {
+			if (lastJoinPlayerId !== e.player.id) return;
+			life = (life + 1) % 3;
+			labelLife.text = "" + (life + 1);
+			labelLife.invalidate();
+			this.life = life + 1;
+		});
+
+		//時間変更用
+		let time = 1;
+		base.append(new g.Label({
+			scene: scene,
+			x: 800,
+			y: 460,
+			font: font,
+			fontSize: 40,
+			text: "制限時間"
+		}));
+
+		const sprTime = new g.FilledRect({
+			scene: scene,
+			x: 850,
+			y: 510,
+			width: 280,
+			height: 80,
+			cssColor: "white",
+			touchable:true
+		});
+		base.append(sprTime);
+
+
+		const labelTime = new g.Label({
+			scene: scene,
+			x: 80,
+			y: 10,
+			font: font,
+			fontSize: 50,
+			text: "2:00"
+		});
+		sprTime.append(labelTime);
+
+		sprTime.pointDown.add(e => {
+			if (lastJoinPlayerId  !== e.player.id) return;
+			time = (time + 1) % 5;
+			labelTime.text = "" + (time + 1) + ":00";
+			labelTime.invalidate();
+			this.time = time + 1;
+		});
 
 		// マルチキーボードインスタンスの生成
 		const keyboard = new MultiKeyboard({
@@ -124,8 +211,6 @@ export class Input extends g.E {
 			local: true
 		});
 		keyboardButton.hide();
-
-
 
 		keyboardButton.pointDown.add(e => {
 			switch (state) {

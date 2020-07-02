@@ -20,8 +20,9 @@ export class Player extends g.E {
 	public life: number;//ライフ
 	public hitCnt: number;//ボールを当てた回数
 	public isHuman: boolean;
+	public time: number;//掴んでいる時間
 
-	constructor(scene: g.Scene, id: string, name: string, isHuman:boolean, font: g.Font) {
+	constructor(scene: g.Scene, id: string, name: string,life:number, isHuman:boolean, font: g.Font) {
 
 		super({
 			scene: scene,
@@ -37,10 +38,11 @@ export class Player extends g.E {
 		this.stateCatch = 0;
 		this.isCatch = false;
 		this.name = name;
-		this.life = 3;
+		this.life = life;
 		this.isDie = false;
 		this.hitCnt = 0;
 		this.isHuman = isHuman;
+		this.time = 0;
 
 		//体のフレームをライフによって変えて取得
 		const getFrames: (arr: number[]) => number[] = (arr) => {
