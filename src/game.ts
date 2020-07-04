@@ -120,7 +120,7 @@ export class Game extends g.E {
 		this.append(playerE);
 
 		//ボールを載せるエンティティ
-		const ballE = new g.E({scene: scene});
+		const ballE = new g.E({ scene: scene });
 		this.append(ballE);
 		//ボール
 		const ball = new Ball(scene);
@@ -142,7 +142,7 @@ export class Game extends g.E {
 				height: 120,
 				frames: [0, 1, 2],
 				opacity: 0.5,
-				interval:100
+				interval: 100
 			});
 			effect.start();
 			effect.hide();
@@ -195,7 +195,6 @@ export class Game extends g.E {
 		});
 		buttonBGM.append(labelBGM);
 
-
 		//SEの切り替えボタン
 		let seVol = 1.0;
 		const buttonSE = new g.FilledRect({
@@ -231,6 +230,36 @@ export class Game extends g.E {
 			buttonSE.modified();
 		});
 
+		//リセットボタン
+		const btnReset = new g.Sprite({
+			scene: scene,
+			src: scene.assets["button"],
+			x: 510,
+			y: 305,
+			anchorX: 0,
+			anchorY: 0,
+			scaleX: 0.5,
+			scaleY: 0.5,
+			touchable: true
+		});
+
+		const labelReset = new g.Label({
+			scene: scene,
+			font: font2,
+			x: 20,
+			y: 15,
+			fontSize: 50,
+			textColor: "white",
+			text: "リセット"
+		});
+		btnReset.append(labelReset);
+
+		btnReset.pointDown.add(() => {
+			//this.destroy();
+			location.reload();//ブラウザ更新
+		});
+
+		//終了処理
 		const finish = () => {
 			isStart = false;
 			labelTime.text = "終了";
@@ -243,6 +272,11 @@ export class Game extends g.E {
 			timeline.create(ranking).moveY(30, 4000).call(() => {
 				ranking.setPlayers(arr);
 			});
+
+			//アツマールの場合はリセットボタン表示
+			//if (typeof window !== "undefined" && window.RPGAtsumaru) {
+			//	this.append(btnReset);
+			//}
 
 			playSound("se_timeup", seVol);
 		}
@@ -540,12 +574,13 @@ export class Game extends g.E {
 				}
 			};
 
+			//ボット作成
 			const num = Object.keys(users).length;
 			if (num < 10) {
 				for (let i = 0; i < 10 - num; i++) {
 					const name = "bot" + (i + 1);
 					const id = "" + i;
-					const player = new Player(scene, id, name,life, false, font);
+					const player = new Player(scene, id, name, life, false, font);
 
 					playerE.append(player);
 					players[id] = player;
@@ -557,7 +592,7 @@ export class Game extends g.E {
 			scene.setTimeout(() => {
 				isStart = true;
 				playSound("se_start", seVol);
-			},1000);
+			}, 1000);
 		};
 
 	}

@@ -208,10 +208,7 @@ export class Input extends g.E {
 			touchable: true,
 			local: true
 		});
-
-		if (!(typeof window !== "undefined" && window.RPGAtsumaru)) {
-			keyboardButton.hide();
-		}
+		keyboardButton.hide();
 
 		const keyboardLabel = new g.Label({
 			scene: scene,
@@ -253,7 +250,10 @@ export class Input extends g.E {
 			}
 			keyboardButton.invalidate();
 		});
-		base.append(keyboardButton);
+		
+		if (!(typeof window !== "undefined" && window.RPGAtsumaru)) {
+			base.append(keyboardButton);
+		}
 
 		//受付開始、参加、参加済み、受付終了の表示用
 		const joinButton = new g.Pane({
