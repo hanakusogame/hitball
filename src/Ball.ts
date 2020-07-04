@@ -24,6 +24,9 @@ export class Ball extends g.Sprite {
 
 		this.isMove = false;
 		this.isCatch = false;
+		this.moveX = 0;
+		this.moveY = 0;
+		this.speed = 0;
 
 		const b = new g.Sprite({
 			scene: scene,

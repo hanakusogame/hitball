@@ -21,7 +21,7 @@ export class Input extends g.E {
 		const scene = pram.scene;
 		const timeline = new Timeline(scene);
 		this.users = {};
-		this.time = 2;
+		this.time = 3;
 		this.life = 3;
 
 		const base = new g.E({
@@ -145,7 +145,7 @@ export class Input extends g.E {
 		});
 
 		//時間変更用
-		let time = 1;
+		let time = 2;
 		base.append(new g.Label({
 			scene: scene,
 			x: 800,
@@ -162,7 +162,7 @@ export class Input extends g.E {
 			width: 280,
 			height: 80,
 			cssColor: "white",
-			touchable:true
+			touchable: true
 		});
 		base.append(sprTime);
 
@@ -173,12 +173,12 @@ export class Input extends g.E {
 			y: 10,
 			font: font,
 			fontSize: 50,
-			text: "2:00"
+			text: this.time + ":00"
 		});
 		sprTime.append(labelTime);
 
 		sprTime.pointDown.add(e => {
-			if (lastJoinPlayerId  !== e.player.id) return;
+			if (lastJoinPlayerId !== e.player.id) return;
 			time = (time + 1) % 5;
 			labelTime.text = "" + (time + 1) + ":00";
 			labelTime.invalidate();
@@ -188,7 +188,7 @@ export class Input extends g.E {
 		// マルチキーボードインスタンスの生成
 		const keyboard = new MultiKeyboard({
 			scene: scene,
-			font: keyboardFont,
+			font: font,
 			sceneAssets: scene.assets,
 			maxLength: 8,
 			y: 720,
@@ -197,36 +197,56 @@ export class Input extends g.E {
 		base.append(keyboard);
 
 		let state = ButtonState.OFF;
-		const openAsset = (scene.assets["open"] as g.ImageAsset);
-		const closeAsset = (scene.assets["close"] as g.ImageAsset);
 		const buttonAsset = (scene.assets["button"] as g.ImageAsset);
-		const keyboardButton = new g.Pane({
+		const keyboardButton = new g.Sprite({
 			scene: scene,
-			width: openAsset.width,
-			height: openAsset.height,
+			width: buttonAsset.width,
+			height: buttonAsset.height,
 			x: 50,
 			y: 610,
-			backgroundImage: openAsset,
+			src: buttonAsset,
 			touchable: true,
 			local: true
 		});
-		keyboardButton.hide();
+
+		if (!(typeof window !== "undefined" && window.RPGAtsumaru)) {
+			keyboardButton.hide();
+		}
+
+		const keyboardLabel = new g.Label({
+			scene: scene,
+			x: 30,
+			y: 10,
+			font: font,
+			fontSize: 50,
+			text: "名前入力",
+			textColor: "white",
+			local: true
+		});
+
+		keyboardButton.append(keyboardLabel);
 
 		keyboardButton.pointDown.add(e => {
 			switch (state) {
 				case ButtonState.OFF:
-					keyboardButton.backgroundImage = g.Util.asSurface(closeAsset);
+					keyboardLabel.text = "決定";
+					keyboardLabel.invalidate();
 					timeline.create(keyboard).moveTo(0, 0, 150);
 					state = ButtonState.ON;
 					break;
 				case ButtonState.ON:
 					name.text = keyboard.text;
 					name.invalidate();
-					keyboardButton.backgroundImage = g.Util.asSurface(openAsset);
+					keyboardLabel.text = "名前入力";
+					keyboardLabel.invalidate();
 					timeline.create(keyboard).moveTo(0, 720, 150);
 					state = ButtonState.OFF;
 
 					e.player.name = keyboard.text;
+
+					if (e.player.id !== lastJoinPlayerId && useLocalStorage()) {
+						localStorage.setItem('nickname', e.player.name);
+					}
 					g.game.raiseEvent(new g.MessageEvent({ msg: "rename", player: e.player }));
 
 					break;
@@ -249,7 +269,7 @@ export class Input extends g.E {
 		base.append(joinButton);
 		joinButton.hide();
 
-		const strStates = ["受付待ち", "参加", "参加済み", "受付終了"]
+		const strStates = ["受付待ち", "参加", "参加済み", "受付終了", "開始待ち"]
 		const labelState = new g.Label({
 			scene: scene,
 			font: font,
@@ -274,7 +294,12 @@ export class Input extends g.E {
 				//受付開始
 				const p = msg.data.player;
 				const num = Object.keys(this.users).length;
-				p.name = msg.data.msg === "start" ? "ほうそうしゃ" : "げすと" + num;
+
+				let n = "ゲスト" + num;
+				if (p.name) {
+					n = p.name;
+				}
+				p.name = msg.data.msg === "start" ? "放送者" : n;
 				this.users[p.id] = p.name;
 				if (p.id === g.game.selfId) {
 					name.text = p.name;
@@ -282,7 +307,7 @@ export class Input extends g.E {
 					name.invalidate();
 				}
 
-				numLabel.text = (num+1) + "人";
+				numLabel.text = (num + 1) + "人";
 				numLabel.invalidate();
 
 				if (msg.data.msg === "start") {
@@ -302,13 +327,31 @@ export class Input extends g.E {
 
 			else if (msg.data.msg === "end") {
 				//if (Object.keys(this.users).length > 1) {
-					this.endEvent();
+				this.endEvent();
 				// } else {
 				// 	infoLabel.text = "人数が足りません";
 				// 	infoLabel.invalidate();
 				// }
 			}
 		});
+
+		const useLocalStorage = () => {
+			if (typeof localStorage !== 'undefined') {
+				try {
+					localStorage.setItem('dummy', '1');
+					if (localStorage.getItem('dummy') === '1') {
+						localStorage.removeItem('dummy');
+						return true;
+					} else {
+						return false;
+					}
+				} catch (e) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
 
 		//クリックイベント(ローカル)
 		joinButton.pointDown.add(e => {
@@ -329,11 +372,19 @@ export class Input extends g.E {
 				labelState.tag = 2;
 				labelState.text = strStates[labelState.tag];
 				labelState.invalidate();
+
+				if (useLocalStorage()) {
+					e.player.name = localStorage.getItem('nickname');
+				}
+
 				g.game.raiseEvent(new g.MessageEvent({ msg: "add", player: e.player }));
 			}
 
 			//受付終了
 			else if (labelState.tag === 3) {
+				labelState.tag = 2;
+				labelState.text = strStates[4];
+				labelState.invalidate();
 				g.game.raiseEvent(new g.MessageEvent({ msg: "end", player: e.player }));
 			}
 

@@ -9,7 +9,7 @@ export class Player extends g.E {
 	public isDie: boolean;
 	public speed: number;//移動速度
 	public setAngle: (x: number) => void;
-	public direction: number;
+	public direction: number; //向き
 	public stop: () => void;
 	public move: () => void;
 	public catch: () => void;
@@ -22,7 +22,7 @@ export class Player extends g.E {
 	public isHuman: boolean;
 	public time: number;//掴んでいる時間
 
-	constructor(scene: g.Scene, id: string, name: string,life:number, isHuman:boolean, font: g.Font) {
+	constructor(scene: g.Scene, userid: string, name: string, life: number, isHuman: boolean, font: g.Font) {
 
 		super({
 			scene: scene,
@@ -30,7 +30,7 @@ export class Player extends g.E {
 			y: g.game.random.get(50, 360 - 50 - 20),
 			width: 50,
 			height: 50,
-			tag: id
+			tag: userid
 		});
 
 		this.isMove = false;
@@ -42,6 +42,11 @@ export class Player extends g.E {
 		this.isDie = false;
 		this.hitCnt = 0;
 		this.isHuman = isHuman;
+		this.time = 0;
+		this.direction = 0;
+		this.radian = 0;
+		this.distance = 0;
+		this.speed = 0;
 		this.time = 0;
 
 		//体のフレームをライフによって変えて取得
@@ -101,9 +106,19 @@ export class Player extends g.E {
 			x: -25,
 			textAlign: g.TextAlign.Center,
 			widthAutoAdjust: false,
-			width: 110
+			width: 110,
+			opacity: (userid === g.game.selfId) ? 1.0 : 0.7,
+			local:true
 		});
 		this.append(labelName);
+
+		if (userid === g.game.selfId) {
+			labelName.textColor = "blue";
+			labelName.invalidate();
+		} else if(!isHuman){
+			labelName.textColor = "white";
+			labelName.invalidate();
+		}
 
 		//方向転換
 		this.setAngle = (x) => {
@@ -172,7 +187,7 @@ export class Player extends g.E {
 			body.angle = (x > 0) ? -45 : 45;
 			body.modified();
 
-			if(this.life > 0) this.life--;
+			if (this.life > 0) this.life--;
 
 			//無敵時間
 			this.isCollision = false;
@@ -198,14 +213,14 @@ export class Player extends g.E {
 
 		let isEnd = false;
 
-		this.update.add(()=>{
+		this.update.add(() => {
 			if (this.isDie && !isEnd) {
 				if (head.y < 5) {
 					head.y += 3;
 					head.modified();
 				} else {
 					head.x += (this.direction * 0.2);
-					head.angle += (this.direction );
+					head.angle += (this.direction);
 					head.modified();
 				}
 			}

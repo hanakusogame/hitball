@@ -120,13 +120,35 @@ export class Game extends g.E {
 		this.append(playerE);
 
 		//ボールを載せるエンティティ
-		const ballE = new g.E({
-			scene: scene
-		});
+		const ballE = new g.E({scene: scene});
 		this.append(ballE);
-
 		//ボール
 		const ball = new Ball(scene);
+
+		//エフェクトを載せるエンティティ
+		const effectE = new g.E({
+			scene: scene
+		});
+		this.append(effectE);
+
+		//エフェクト作成
+		const effects: g.FrameSprite[] = [];
+
+		for (let i = 0; i < 5; i++) {
+			const effect = new g.FrameSprite({
+				scene: scene,
+				src: scene.assets["effect"] as g.ImageAsset,
+				width: 120,
+				height: 120,
+				frames: [0, 1, 2],
+				opacity: 0.5,
+				interval:100
+			});
+			effect.start();
+			effect.hide();
+			effects.push(effect);
+			effectE.append(effect);
+		}
 
 		//ランキング
 		const ranking = new Ranking(scene, font2);
@@ -139,7 +161,7 @@ export class Game extends g.E {
 		}
 
 		//BGMの切り替えボタン
-		const bgm = playSound("bgm", 0.4);
+		const bgm = playSound("bgm", 0.2);
 		const buttonBGM = new g.FilledRect({
 			scene: scene,
 			x: 450,
@@ -175,7 +197,7 @@ export class Game extends g.E {
 
 
 		//SEの切り替えボタン
-		let seVol = 0.5;
+		let seVol = 1.0;
 		const buttonSE = new g.FilledRect({
 			scene: scene,
 			x: 550,
@@ -203,7 +225,7 @@ export class Game extends g.E {
 				seVol = 0;
 				buttonSE.cssColor = "gray"
 			} else {
-				seVol = 0.5;
+				seVol = 1;
 				buttonSE.cssColor = "white"
 			}
 			buttonSE.modified();
@@ -238,7 +260,7 @@ export class Game extends g.E {
 			p.isCollision = false;
 			scene.setTimeout(() => { p.isCollision = true }, 700);
 
-			playSound("se_move", seVol);
+			playSound("se_move", seVol * 0.5);
 		};
 
 		//ゲームループ
@@ -262,9 +284,13 @@ export class Game extends g.E {
 				//botの時移動先を指定
 				if (!p.isHuman && !p.isMove) {
 					if (g.game.random.get(0, 50) === 0) {
-						const x = g.game.random.get(50, 590);
-						const y = g.game.random.get(60, 320);
-						setMove(p.tag, x, y);
+						if (g.game.random.get(0, 3) === 0 && !ball.isCatch && !ball.isMove) {
+							setMove(p.tag, ball.x, ball.y);//ボールに向かう
+						} else {
+							const x = g.game.random.get(50, 590);
+							const y = g.game.random.get(60, 320);
+							setMove(p.tag, x, y);//ランダム
+						}
 					}
 				}
 
@@ -276,9 +302,11 @@ export class Game extends g.E {
 						ball.catch();
 						p.isCatch = true;
 
-						cursorNext.x = cursorNow.x;
-						cursorNext.y = cursorNow.y;
-						cursorNext.modified();
+						if (g.game.selfId === key) {
+							cursorNext.x = cursorNow.x;
+							cursorNext.y = cursorNow.y;
+							cursorNext.modified();
+						}
 
 						playSound("se_move", seVol);
 
@@ -288,19 +316,13 @@ export class Game extends g.E {
 						ball.moveY = -ball.moveY;
 
 						//エフェクト作成
-						const effect = new g.FrameSprite({
-							scene: scene,
-							src: scene.assets["effect"] as g.ImageAsset,
-							width: 120,
-							height: 120,
-							frames: [0, 1, 2],
-							interval: 100,
-							x: ball.x - 50,
-							y: ball.y - 50,
-							opacity: 0.5
-						});
-						effect.start();
-						ballE.append(effect);
+						const effect = effects.pop();
+						if (effect) {
+							effect.x = ball.x - 50;
+							effect.y = ball.y - 50;
+							effect.modified();
+							effect.show();
+						}
 
 						ball.player.hitCnt++;
 
@@ -338,7 +360,11 @@ export class Game extends g.E {
 								labelInfo.text = "HIT " + p.name;
 							}
 							labelInfo.invalidate();
-							effect.destroy();
+
+							if (effect) {
+								effect.hide();
+								effects.unshift(effect);
+							}
 						});
 
 						scene.setTimeout(() => {
@@ -348,7 +374,7 @@ export class Game extends g.E {
 						p.stop();
 						p.hit(ball.moveX);
 
-						playSound("se_hit", seVol);
+						playSound("se_hit", seVol * 0.5);
 					}
 				}
 
@@ -363,8 +389,14 @@ export class Game extends g.E {
 				}
 
 				//ボールを長く掴んでいる場合強制的に投げる
-				if (p.time > 3) {
+				if (p.time > 5) {
 					throwBall(p);
+					p.isMove = false;//止まる
+					if (g.game.selfId === key) {
+						cursorNext.x = cursorNow.x;
+						cursorNext.y = cursorNow.y;
+						cursorNext.modified();
+					}
 				}
 
 
@@ -399,13 +431,21 @@ export class Game extends g.E {
 				ball.moveBy(ball.moveX * ball.speed, ball.moveY * ball.speed);
 				ball.modified();
 				//画面端に当たった場合反転
-				if (ball.x < 0 || ball.x > g.game.width - ball.width) {
+				if (ball.x < 0 && ball.moveX < 0) {
 					ball.moveX = -ball.moveX;
-					ball.speed += 0.3;//加速
+					ball.speed += 0.5;//加速
 				}
-				if (ball.y < 15 || ball.y > g.game.height - ball.height + 15) {
+				else if (ball.x > g.game.width - ball.width && ball.moveX >= 0) {
+					ball.moveX = -ball.moveX;
+					ball.speed += 0.5;//加速
+				}
+				else if (ball.y < 15 && ball.moveY < 0) {
 					ball.moveY = -ball.moveY;
-					ball.speed += 0.3;
+					ball.speed += 0.5;
+				}
+				else if (ball.y > g.game.height - ball.height + 15 && ball.moveY >= 0) {
+					ball.moveY = -ball.moveY;
+					ball.speed += 0.5;
 				}
 			}
 
@@ -482,16 +522,16 @@ export class Game extends g.E {
 
 			timeLimit = time * 60;
 
+			labelTime.text = time + ":00";
+			labelTime.invalidate();
+
 			//プレイヤー生成
 			for (let id in users) {
 				const name = users[id];
-				const src = scene.assets["player"] as g.ImageAsset;
 				const player = new Player(scene, id, name, life, true, font);
 
 				playerE.append(player);
 				players[id] = player;
-
-				ballE.append(ball);
 
 				if (id === g.game.selfId) {
 					cursorNow.x = player.x - 10;
@@ -501,23 +541,23 @@ export class Game extends g.E {
 			};
 
 			const num = Object.keys(users).length;
-			if (num < 5) {
-				for (let i = 0; i < 5 - num; i++) {
+			if (num < 10) {
+				for (let i = 0; i < 10 - num; i++) {
 					const name = "bot" + (i + 1);
-					const src = scene.assets["player"] as g.ImageAsset;
 					const id = "" + i;
 					const player = new Player(scene, id, name,life, false, font);
 
 					playerE.append(player);
 					players[id] = player;
-
-					ballE.append(ball);
 				}
 			}
 
-			isStart = true;
+			ballE.append(ball);
 
-			playSound("se_start", seVol);
+			scene.setTimeout(() => {
+				isStart = true;
+				playSound("se_start", seVol);
+			},1000);
 		};
 
 	}

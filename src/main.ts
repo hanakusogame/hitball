@@ -42,8 +42,6 @@ function main(): void {
 		"toSymLetters",
 		"inputtingLabelBack",
 		"backSpaceKey",
-		"open",
-		"close",
 		"notosansFont",
 		"notosansGlyph",
 		"ball",
