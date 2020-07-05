@@ -795,6 +795,17 @@
 			"type": "script",
 			"path": "script/Ranking.js",
 			"global": true
+		},
+		"button2": {
+			"type": "image",
+			"width": 88,
+			"height": 88,
+			"path": "image/button2.png"
+		},
+		"SelectBox": {
+			"type": "script",
+			"path": "script/SelectBox.js",
+			"global": true
 		}
 	},
 	"environment": {

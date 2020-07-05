@@ -51,6 +51,7 @@ function main(): void {
 		"player_body",
 		"player_head",
 		"effect",
+		"button2",
 		"bgm",
 		"se_move",
 		"se_hit",
@@ -73,7 +74,7 @@ function main(): void {
 
 		input.endEvent = () => {
 			input.hide();
-			game.start(input.users,input.life,input.time);
+			game.start(input.users, input.life, input.time, input.limit, input.lastJoinPlayerId);
 		};
 
 		scene.append(input);

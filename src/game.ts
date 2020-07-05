@@ -5,7 +5,7 @@ import { Ranking } from "./Ranking";
 
 export class Game extends g.E {
 
-	public start: (players: { [key: string]: string }, life: number, time: number) => void;
+	public start: (players: { [key: string]: string }, life: number, time: number, limit: number, lastJoinId: string) => void;
 
 	constructor(pram: g.EParameterObject) {
 		super(pram);
@@ -76,6 +76,19 @@ export class Game extends g.E {
 			textColor: "white"
 		});
 		this.append(labelInfo);
+
+		//情報表示
+		const labelDefeat = new g.Label({
+			scene: scene,
+			font: font2,
+			fontSize: 25,
+			text: "",
+			x: 245,
+			y: 300,
+			textColor: "black",
+			local: true
+		});
+		this.append(labelDefeat);
 
 		//カーソル用ローカルエンティティ
 		const localE = new g.E({
@@ -552,7 +565,7 @@ export class Game extends g.E {
 		});
 
 		//ゲーム開始
-		this.start = (users: { [key: string]: string }, life: number, time: number) => {
+		this.start = (users: { [key: string]: string }, life: number, time: number, limit: number, lastJoinId: string) => {
 
 			timeLimit = time * 60;
 
@@ -560,19 +573,50 @@ export class Game extends g.E {
 			labelTime.invalidate();
 
 			//プレイヤー生成
+			let cnt = 0;
+			const array: { id: string, name: string }[] = [];
+
+			//配列に変換
+			let ownerName = users[lastJoinId];
 			for (let id in users) {
-				const name = users[id];
-				const player = new Player(scene, id, name, life, true, font);
+				if (id === lastJoinId) continue;
+				array.push({ id: id, name: users[id] });
+			}
 
-				playerE.append(player);
-				players[id] = player;
+			//シャッフル
+			for (let i = array.length - 1; i > 0; i--) {
+				let r = Math.floor(g.game.random.generate() * (i + 1));
+				let tmp = array[i];
+				array[i] = array[r];
+				array[r] = tmp;
+			}
 
-				if (id === g.game.selfId) {
-					cursorNow.x = player.x - 10;
-					cursorNow.y = player.y - 8;
-					cursorNow.modified();
+			array.unshift({ id: lastJoinId, name: ownerName });
+
+			const playerLimit = (limit <= 2) ? (limit + 2) * 10 : 1000
+
+			array.forEach(p => {
+				if (cnt < playerLimit) {
+					const name = p.name;
+					const player = new Player(scene, p.id, name, life, true, font);
+
+					playerE.append(player);
+					players[p.id] = player;
+
+					if (p.id === g.game.selfId) {
+						cursorNow.x = player.x - 10;
+						cursorNow.y = player.y - 8;
+						cursorNow.modified();
+					}
+				} else {
+					if (g.game.selfId == p.id) {
+						labelDefeat.text = "落選しました";
+						labelDefeat.invalidate();
+						scene.setTimeout(() => labelDefeat.hide(), 5000);
+					}
 				}
-			};
+				cnt++;
+			});
 
 			//ボット作成
 			const num = Object.keys(users).length;

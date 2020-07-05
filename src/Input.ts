@@ -1,3 +1,4 @@
+import { SelectBox } from './SelectBox';
 import { Label } from "@akashic-extension/akashic-label";
 import { Timeline } from "@akashic-extension/akashic-timeline";
 import MultiKeyboard = require("./MultiKeyboard");
@@ -14,7 +15,9 @@ export class Input extends g.E {
 	public users: { [key: string]: string };
 	public time: number;
 	public life: number;
+	public limit: number;
 	public endEvent: () => void;
+	public lastJoinPlayerId: string;
 
 	constructor(pram: g.EParameterObject) {
 		super(pram);
@@ -93,97 +96,33 @@ export class Input extends g.E {
 		//ヘルプ
 		const helpLabel = new Label({
 			scene: scene,
-			text: "ボールをぶつけ合うゲームです\r3回ぶつかるか場外に出ると退場\r自機をクリックでボールが取れます\r最後まで生き残った人の勝ち\r参加人数は無制限です",
+			text: "ボールをぶつけ合うゲームです\rライフがなくなるか場外に出ると退場\r自機をクリックでボールが取れます\r最後まで生き残った人の勝ち",
 			textColor: "black",
 			width: 1000,
 			y: 150,
-			x: 200,
+			x: 20,
 			font: font,
-			fontSize: 50,
+			fontSize: 45,
 			textAlign: g.TextAlign.Left
 		});
 		base.append(helpLabel);
 
+		//人数制限
+		this.limit = 0;
+		const playerLimit = new SelectBox(scene, font, 850, 150, "人数制限", ["20", "30", "40", "無制限"], 0);
+		base.append(playerLimit);
+		playerLimit.setNum = n => { this.limit = n };
+
 		//ライフ変更用
-		let life = 2;
-		base.append(new g.Label({
-			scene: scene,
-			x: 350,
-			y: 460,
-			font: font,
-			fontSize: 40,
-			text: "ライフ"
-		}));
-
-		const sprLife = new g.FilledRect({
-			scene: scene,
-			x: 400,
-			y: 510,
-			width: 280,
-			height: 80,
-			cssColor: "white",
-			touchable: true
-		});
-		base.append(sprLife);
-
-		const labelLife = new g.Label({
-			scene: scene,
-			x: 120,
-			y: 10,
-			font: font,
-			fontSize: 50,
-			text: "3",
-		});
-		sprLife.append(labelLife);
-
-		sprLife.pointDown.add(e => {
-			if (lastJoinPlayerId !== e.player.id) return;
-			life = (life + 1) % 3;
-			labelLife.text = "" + (life + 1);
-			labelLife.invalidate();
-			this.life = life + 1;
-		});
+		this.life = 3;
+		const selectLife = new SelectBox(scene, font, 850, 300, "ライフ", ["1", "2", "3"], 2);
+		base.append(selectLife);
+		selectLife.setNum = n => { this.life = n + 1 };
 
 		//時間変更用
-		let time = 2;
-		base.append(new g.Label({
-			scene: scene,
-			x: 800,
-			y: 460,
-			font: font,
-			fontSize: 40,
-			text: "制限時間"
-		}));
-
-		const sprTime = new g.FilledRect({
-			scene: scene,
-			x: 850,
-			y: 510,
-			width: 280,
-			height: 80,
-			cssColor: "white",
-			touchable: true
-		});
-		base.append(sprTime);
-
-
-		const labelTime = new g.Label({
-			scene: scene,
-			x: 80,
-			y: 10,
-			font: font,
-			fontSize: 50,
-			text: this.time + ":00"
-		});
-		sprTime.append(labelTime);
-
-		sprTime.pointDown.add(e => {
-			if (lastJoinPlayerId !== e.player.id) return;
-			time = (time + 1) % 5;
-			labelTime.text = "" + (time + 1) + ":00";
-			labelTime.invalidate();
-			this.time = time + 1;
-		});
+		const selectTime = new SelectBox(scene, font, 850, 450, "時間制限", ["2:00", "3:00", "4:00", "5:00"], 1);
+		base.append(selectTime);
+		selectTime.setNum = n => { this.time = n + 2 };
 
 		// マルチキーボードインスタンスの生成
 		const keyboard = new MultiKeyboard({
@@ -241,7 +180,7 @@ export class Input extends g.E {
 
 					e.player.name = keyboard.text;
 
-					if (e.player.id !== lastJoinPlayerId && useLocalStorage()) {
+					if (e.player.id !== this.lastJoinPlayerId && useLocalStorage()) {
 						localStorage.setItem('nickname', e.player.name);
 					}
 					g.game.raiseEvent(new g.MessageEvent({ msg: "rename", player: e.player }));
@@ -250,7 +189,7 @@ export class Input extends g.E {
 			}
 			keyboardButton.invalidate();
 		});
-		
+
 		if (!(typeof window !== "undefined" && window.RPGAtsumaru)) {
 			base.append(keyboardButton);
 		}
@@ -326,6 +265,7 @@ export class Input extends g.E {
 			}
 
 			else if (msg.data.msg === "end") {
+
 				//if (Object.keys(this.users).length > 1) {
 				this.endEvent();
 				// } else {
@@ -390,9 +330,9 @@ export class Input extends g.E {
 
 		});
 
-		let lastJoinPlayerId: string = null;
-		g.game.join.add(function (ev) {
-			lastJoinPlayerId = ev.player.id;
+		g.game.join.add((ev) => {
+			this.lastJoinPlayerId = ev.player.id;
+			SelectBox.lastJoinId = this.lastJoinPlayerId;
 			if (g.game.selfId === ev.player.id) {
 				joinButton.show();
 			}
