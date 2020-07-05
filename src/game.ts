@@ -572,7 +572,6 @@ export class Game extends g.E {
 			labelTime.text = time + ":00";
 			labelTime.invalidate();
 
-			//プレイヤー生成
 			let cnt = 0;
 			const array: { id: string, name: string }[] = [];
 
@@ -592,9 +591,9 @@ export class Game extends g.E {
 			}
 
 			array.unshift({ id: lastJoinId, name: ownerName });
-
 			const playerLimit = (limit <= 2) ? (limit + 2) * 10 : 1000
 
+			//プレイヤー生成
 			array.forEach(p => {
 				if (cnt < playerLimit) {
 					const name = p.name;

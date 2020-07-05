@@ -265,13 +265,7 @@ export class Input extends g.E {
 			}
 
 			else if (msg.data.msg === "end") {
-
-				//if (Object.keys(this.users).length > 1) {
 				this.endEvent();
-				// } else {
-				// 	infoLabel.text = "人数が足りません";
-				// 	infoLabel.invalidate();
-				// }
 			}
 		});
 
@@ -339,6 +333,7 @@ export class Input extends g.E {
 		});
 
 		if (typeof window !== "undefined" && window.RPGAtsumaru) {
+			this.lastJoinPlayerId = g.game.selfId;
 			joinButton.show();
 		}
 
