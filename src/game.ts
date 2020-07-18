@@ -1,3 +1,4 @@
+import { Input } from './Input';
 import { Timeline } from "@akashic-extension/akashic-timeline";
 import { Player } from "./player";
 import { Ball } from "./Ball";
@@ -5,7 +6,7 @@ import { Ranking } from "./Ranking";
 
 export class Game extends g.E {
 
-	public start: (players: { [key: string]: string }, life: number, time: number, limit: number, lastJoinId: string) => void;
+	public start: (input:Input) => void;
 
 	constructor(pram: g.EParameterObject) {
 		super(pram);
@@ -136,7 +137,7 @@ export class Game extends g.E {
 		const ballE = new g.E({ scene: scene });
 		this.append(ballE);
 		//ボール
-		const ball = new Ball(scene);
+		const balls: Ball[] = [];
 
 		//エフェクトを載せるエンティティ
 		const effectE = new g.E({
@@ -189,10 +190,10 @@ export class Game extends g.E {
 
 		buttonBGM.pointDown.add(() => {
 			if (buttonBGM.cssColor === "white") {
-				bgm.changeVolume(0);
+				bgm._changeMuted(true);
 				buttonBGM.cssColor = "gray"
 			} else {
-				bgm.changeVolume(0.4);
+				bgm._changeMuted(false);
 				buttonBGM.cssColor = "white"
 			}
 			buttonBGM.modified();
@@ -286,22 +287,17 @@ export class Game extends g.E {
 				ranking.setPlayers(arr);
 			});
 
-			//アツマールの場合はリセットボタン表示
-			//if (typeof window !== "undefined" && window.RPGAtsumaru) {
-			//	this.append(btnReset);
-			//}
-
 			playSound("se_timeup", seVol);
 		}
 
 		//投げる
-		const throwBall = (p: Player) => {
+		const throwBall = (p: Player, ball: Ball) => {
 			ball.isMove = true;
 			ball.isCatch = false;
 			ball.moveY = Math.sin(p.radian);
 			ball.moveX = Math.cos(p.radian);
 			ball.speed = (p.speed + 2);
-			p.isCatch = false;
+			p.ball = null;
 
 			//自分の投げたボールに当たらないように無敵時間を作る
 			p.isCollision = false;
@@ -331,8 +327,8 @@ export class Game extends g.E {
 				//botの時移動先を指定
 				if (!p.isHuman && !p.isMove) {
 					if (g.game.random.get(0, 50) === 0) {
-						if (g.game.random.get(0, 3) === 0 && !ball.isCatch && !ball.isMove) {
-							setMove(p.tag, ball.x, ball.y);//ボールに向かう
+						if (g.game.random.get(0, 3) === 0 && !balls[0].isCatch && !balls[0].isMove) {
+							setMove(p.tag, balls[0].x, balls[0].y);//ボールに向かう
 						} else {
 							const x = g.game.random.get(50, 590);
 							const y = g.game.random.get(60, 320);
@@ -341,109 +337,124 @@ export class Game extends g.E {
 					}
 				}
 
-				if (p.isCollision && !p.isDie && g.Collision.withinAreas(p, ball, 40) && !ball.isCatch) {
-					if (!ball.isMove || p.stateCatch === 1) {
-						//落ちている時と掴もうとしているとき掴む
-						ball.player = p;
-						p.isMove = false;//止まる
-						ball.catch();
-						p.isCatch = true;
+				for (let i = 0; i < balls.length; i++) {
+					const ball = balls[i];
+					if (p.isCollision && !p.isDie && g.Collision.withinAreas(p, ball, 40) && !ball.isCatch) {
+						if (!ball.isMove || p.stateCatch === 1) {
+							if (!p.ball) {
+								//落ちている時と掴もうとしているとき掴む
+								ball.player = p;
+								p.isMove = false;//止まる
+								ball.catch();
+								p.ball = ball;
+								p.time = 0;
 
+								if (g.game.selfId === key) {
+									cursorNext.x = cursorNow.x;
+									cursorNext.y = cursorNow.y;
+									cursorNext.modified();
+								}
+
+								playSound("se_move", seVol);
+							}
+
+						} else {
+							//動いているときは当たる
+							ball.moveX = -ball.moveX;
+							ball.moveY = -ball.moveY;
+
+							//エフェクト作成
+							const effect = effects.pop();
+							if (effect) {
+								effect.x = ball.x - 50;
+								effect.y = ball.y - 50;
+								effect.modified();
+								effect.show();
+							}
+
+							ball.player.hitCnt++;
+
+							//離す処理のつもり
+							if (p.ball) {
+								p.ball.isCatch = false;
+								p.ball.stop();
+								p.ball = null;
+							}
+
+							//反動で飛ばされる
+							p.isCollision = false;
+							timeline.create(p).moveBy(10 * -(ball.speed * ball.moveX), 0, 500).call(() => {
+								if (g.game.selfId === key) {
+									cursorNow.moveTo(p.x - 10, p.y - 8);
+									cursorNow.modified();
+									cursorNext.moveTo(p.x - 10, p.y - 8);
+									cursorNext.modified();
+								}
+								p.stop();
+								p.isCollision = true;
+
+								const px = (p.x + p.width / 2);
+
+								if ((p.life <= 0 || px < 30 || px > 610) && !p.isDie) {
+									p.die();
+									scene.setTimeout(() => {
+										if (g.game.selfId === key) {
+											cursorNow.hide();
+											cursorNext.hide();
+										}
+										p.hide();
+									}, 3000);
+
+									labelInfo.textColor = "red";
+									labelInfo.text = "OUT " + p.name;
+
+									dieCnt++;
+									if (dieCnt >= Object.keys(players).length - 1) {
+										finish();
+									}
+								} else {
+									labelInfo.textColor = "yellow";
+									labelInfo.text = "HIT " + p.name;
+								}
+								labelInfo.invalidate();
+
+								if (effect) {
+									effect.hide();
+									effects.unshift(effect);
+								}
+							});
+
+							scene.setTimeout(() => {
+								ball.stop();
+							}, 200);
+
+							p.stop();
+							p.hit(ball.moveX);
+
+							playSound("se_hit", seVol * 0.5);
+						}
+					}
+
+					//ボールをプレイヤーに追従
+					if (p.ball && p.ball === ball) {
+						ball.x = p.x + (p.width - ball.width) / 2 + (20 * p.direction);
+						ball.y = p.y + (p.height - ball.height) / 2 + 8;
+						ball.modified();
+						p.time += (1 / 30);
+					}
+
+					//ボールを長く掴んでいる場合強制的に投げる
+					if (p.time > 5) {
+						throwBall(p, p.ball);
+						p.time = 0;
+						p.isMove = false;//止まる
 						if (g.game.selfId === key) {
 							cursorNext.x = cursorNow.x;
 							cursorNext.y = cursorNow.y;
 							cursorNext.modified();
 						}
-
-						playSound("se_move", seVol);
-
-					} else {
-						//動いているときは当たる
-						ball.moveX = -ball.moveX;
-						ball.moveY = -ball.moveY;
-
-						//エフェクト作成
-						const effect = effects.pop();
-						if (effect) {
-							effect.x = ball.x - 50;
-							effect.y = ball.y - 50;
-							effect.modified();
-							effect.show();
-						}
-
-						ball.player.hitCnt++;
-
-						//反動で飛ばされる
-						timeline.create(p).moveBy(10 * -(ball.speed * ball.moveX), 0, 500).call(() => {
-							if (g.game.selfId === key) {
-								cursorNow.moveTo(p.x - 10, p.y - 8);
-								cursorNow.modified();
-								cursorNext.moveTo(p.x - 10, p.y - 8);
-								cursorNext.modified();
-							}
-							p.stop();
-
-							const px = (p.x + p.width / 2);
-
-							if (p.life <= 0 || px < 30 || px > 610) {
-								p.die();
-								scene.setTimeout(() => {
-									if (g.game.selfId === key) {
-										cursorNow.hide();
-										cursorNext.hide();
-									}
-									p.hide();
-								}, 3000);
-
-								labelInfo.textColor = "red";
-								labelInfo.text = "OUT " + p.name;
-
-								dieCnt++;
-								if (dieCnt >= Object.keys(players).length - 1) {
-									finish();
-								}
-							} else {
-								labelInfo.textColor = "yellow";
-								labelInfo.text = "HIT " + p.name;
-							}
-							labelInfo.invalidate();
-
-							if (effect) {
-								effect.hide();
-								effects.unshift(effect);
-							}
-						});
-
-						scene.setTimeout(() => {
-							ball.stop();
-						}, 200);
-
-						p.stop();
-						p.hit(ball.moveX);
-
-						playSound("se_hit", seVol * 0.5);
 					}
-				}
 
-				//ボールをプレイヤーに追従
-				if (p.isCatch) {
-					ball.x = p.x + (p.width - ball.width) / 2 + (20 * p.direction);
-					ball.y = p.y + (p.height - ball.height) / 2 + 8;
-					ball.modified();
-					p.time += (1 / 30);
-				} else {
-					p.time = 0;
-				}
-
-				//ボールを長く掴んでいる場合強制的に投げる
-				if (p.time > 5) {
-					throwBall(p);
-					p.isMove = false;//止まる
-					if (g.game.selfId === key) {
-						cursorNext.x = cursorNow.x;
-						cursorNext.y = cursorNow.y;
-						cursorNext.modified();
-					}
 				}
 
 
@@ -466,33 +477,36 @@ export class Game extends g.E {
 					//p.isMove = false;
 					p.stop();
 					//ボールを持っていたら投げる
-					if (p.isCatch) {
-						throwBall(p);
+					if (p.ball) {
+						throwBall(p,p.ball);
 					}
 				}
 
 			}
 
-			//ボールの移動
-			if (ball.isMove && !ball.isCatch) {
-				ball.moveBy(ball.moveX * ball.speed, ball.moveY * ball.speed);
-				ball.modified();
-				//画面端に当たった場合反転
-				if (ball.x < 0 && ball.moveX < 0) {
-					ball.moveX = -ball.moveX;
-					ball.speed += 0.5;//加速
-				}
-				else if (ball.x > g.game.width - ball.width && ball.moveX >= 0) {
-					ball.moveX = -ball.moveX;
-					ball.speed += 0.5;//加速
-				}
-				else if (ball.y < 15 && ball.moveY < 0) {
-					ball.moveY = -ball.moveY;
-					ball.speed += 0.5;
-				}
-				else if (ball.y > g.game.height - ball.height + 15 && ball.moveY >= 0) {
-					ball.moveY = -ball.moveY;
-					ball.speed += 0.5;
+			for (let i = 0; i < balls.length; i++) {
+				const ball = balls[i];
+				//ボールの移動
+				if (ball.isMove && !ball.isCatch) {
+					ball.moveBy(ball.moveX * ball.speed, ball.moveY * ball.speed);
+					ball.modified();
+					//画面端に当たった場合反転
+					if (ball.x < 0 && ball.moveX < 0) {
+						ball.moveX = -ball.moveX;
+						ball.speed += 0.5;//加速
+					}
+					else if (ball.x > g.game.width - ball.width && ball.moveX >= 0) {
+						ball.moveX = -ball.moveX;
+						ball.speed += 0.5;//加速
+					}
+					else if (ball.y < 15 && ball.moveY < 0) {
+						ball.moveY = -ball.moveY;
+						ball.speed += 0.5;
+					}
+					else if (ball.y > g.game.height - ball.height + 15 && ball.moveY >= 0) {
+						ball.moveY = -ball.moveY;
+						ball.speed += 0.5;
+					}
 				}
 			}
 
@@ -529,7 +543,7 @@ export class Game extends g.E {
 			if (!msg.data || !msg.data.msg) return;
 			if (msg.data.msg === "catching") {
 				const p: Player = players[msg.data.player.id];
-				if (!p.isCollision || p.isCatch || p.isDie) return;
+				if (!p.isCollision || p.ball || p.isDie) return;
 				p.catch();
 			}
 		});
@@ -565,21 +579,21 @@ export class Game extends g.E {
 		});
 
 		//ゲーム開始
-		this.start = (users: { [key: string]: string }, life: number, time: number, limit: number, lastJoinId: string) => {
+		this.start = (input:Input) => {
 
-			timeLimit = time * 60;
+			timeLimit = input.time * 60;
 
-			labelTime.text = time + ":00";
+			labelTime.text = input.time + ":00";
 			labelTime.invalidate();
 
 			let cnt = 0;
 			const array: { id: string, name: string }[] = [];
 
 			//配列に変換
-			let ownerName = users[lastJoinId];
-			for (let id in users) {
-				if (id === lastJoinId) continue;
-				array.push({ id: id, name: users[id] });
+			let ownerName = input.users[input.lastJoinPlayerId];
+			for (let id in input.users) {
+				if (id === input.lastJoinPlayerId) continue;
+				array.push({ id: id, name: input.users[id] });
 			}
 
 			//シャッフル
@@ -590,14 +604,14 @@ export class Game extends g.E {
 				array[r] = tmp;
 			}
 
-			array.unshift({ id: lastJoinId, name: ownerName });
-			const playerLimit = (limit <= 2) ? (limit + 2) * 10 : 1000
+			array.unshift({ id: input.lastJoinPlayerId, name: ownerName });
+			const playerLimit = (input.limit <= 2) ? (input.limit + 2) * 10 : 1000
 
 			//プレイヤー生成
 			array.forEach(p => {
 				if (cnt < playerLimit) {
 					const name = p.name;
-					const player = new Player(scene, p.id, name, life, true, font);
+					const player = new Player(scene, p.id, name, input.life, true, font);
 
 					playerE.append(player);
 					players[p.id] = player;
@@ -618,19 +632,24 @@ export class Game extends g.E {
 			});
 
 			//ボット作成
-			const num = Object.keys(users).length;
+			const num = Object.keys(input.users).length;
 			if (num < 10) {
 				for (let i = 0; i < 10 - num; i++) {
 					const name = "bot" + (i + 1);
 					const id = "" + i;
-					const player = new Player(scene, id, name, life, false, font);
-
+					const player = new Player(scene, id, name, input.life, false, font);
 					playerE.append(player);
 					players[id] = player;
 				}
 			}
 
-			ballE.append(ball);
+			for (let i = 0; i < input.ballNum; i++) {
+				const ball = new Ball(scene);
+				balls.push(ball);
+				ballE.append(balls[i]);
+				balls[i].x = g.game.random.get(200,460);
+				balls[i].modified();
+			}
 
 			scene.setTimeout(() => {
 				isStart = true;

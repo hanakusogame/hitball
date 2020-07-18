@@ -1,3 +1,4 @@
+import { Ball } from './Ball';
 //プレイヤークラス
 export class Player extends g.E {
 	public radian: number;//角度
@@ -5,7 +6,7 @@ export class Player extends g.E {
 	public isMove: boolean;//移動中
 	public isCollision: boolean;//当たり判定の有無(無敵状態)
 	public stateCatch: number;//掴める状態を表す値
-	public isCatch: boolean;//ボールを掴んでいる状態
+	public ball: Ball;//ボールを掴んでいる状態
 	public isDie: boolean;
 	public speed: number;//移動速度
 	public setAngle: (x: number) => void;
@@ -36,7 +37,7 @@ export class Player extends g.E {
 		this.isMove = false;
 		this.isCollision = true;
 		this.stateCatch = 0;
-		this.isCatch = false;
+		this.ball = null;
 		this.name = name;
 		this.life = life;
 		this.isDie = false;

@@ -74,7 +74,7 @@ function main(): void {
 
 		input.endEvent = () => {
 			input.hide();
-			game.start(input.users, input.life, input.time, input.limit, input.lastJoinPlayerId);
+			game.start(input);
 		};
 
 		scene.append(input);

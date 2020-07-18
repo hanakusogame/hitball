@@ -12,10 +12,11 @@ const enum ButtonState {
 }
 
 export class Input extends g.E {
-	public users: { [key: string]: string };
-	public time: number;
-	public life: number;
-	public limit: number;
+	public users: { [key: string]: string } = {};
+	public time: number = 3;
+	public life: number = 3;
+	public ballNum: number = 1;
+	public limit: number = 0;
 	public endEvent: () => void;
 	public lastJoinPlayerId: string;
 
@@ -23,9 +24,6 @@ export class Input extends g.E {
 		super(pram);
 		const scene = pram.scene;
 		const timeline = new Timeline(scene);
-		this.users = {};
-		this.time = 3;
-		this.life = 3;
 
 		const base = new g.E({
 			scene: scene,
@@ -71,8 +69,8 @@ export class Input extends g.E {
 			text: "",
 			textColor: "black",
 			width: 200,
-			y: 620,
-			x: 900,
+			y: 540,
+			x: 600,
 			font: font,
 			fontSize: 50,
 			textAlign: g.TextAlign.Left
@@ -108,19 +106,23 @@ export class Input extends g.E {
 		base.append(helpLabel);
 
 		//人数制限
-		this.limit = 0;
-		const playerLimit = new SelectBox(scene, font, 850, 150, "人数制限", ["20", "30", "40", "無制限"], 0);
+		const playerLimit = new SelectBox(scene, font, 850, 100, "人数制限", ["20人", "30人", "40人", "無制限"], 0);
 		base.append(playerLimit);
 		playerLimit.setNum = n => { this.limit = n };
 
+		//ボールの数変更用
+		const selectBall = new SelectBox(scene, font, 850, 250, "ボールの数", ["1個", "2個", "3個"], 0);
+		base.append(selectBall);
+		selectBall.setNum = n => { this.ballNum = n + 1 };
+
 		//ライフ変更用
 		this.life = 3;
-		const selectLife = new SelectBox(scene, font, 850, 300, "ライフ", ["1", "2", "3"], 2);
+		const selectLife = new SelectBox(scene, font, 850, 400, "ライフ", ["1", "2", "3"], 2);
 		base.append(selectLife);
 		selectLife.setNum = n => { this.life = n + 1 };
 
 		//時間変更用
-		const selectTime = new SelectBox(scene, font, 850, 450, "時間制限", ["2:00", "3:00", "4:00", "5:00"], 1);
+		const selectTime = new SelectBox(scene, font, 850, 550, "時間制限", ["2:00", "3:00", "4:00", "5:00"], 1);
 		base.append(selectTime);
 		selectTime.setNum = n => { this.time = n + 2 };
 
@@ -270,8 +272,8 @@ export class Input extends g.E {
 		});
 
 		const useLocalStorage = () => {
-			if (typeof localStorage !== 'undefined') {
-				try {
+			try {
+				if (typeof window.localStorage !== 'undefined') {
 					localStorage.setItem('dummy', '1');
 					if (localStorage.getItem('dummy') === '1') {
 						localStorage.removeItem('dummy');
@@ -279,10 +281,10 @@ export class Input extends g.E {
 					} else {
 						return false;
 					}
-				} catch (e) {
+				} else {
 					return false;
 				}
-			} else {
+			} catch (e) {
 				return false;
 			}
 		}
