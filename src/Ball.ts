@@ -4,12 +4,14 @@ import { Player } from "./player";
 export class Ball extends g.Sprite {
 	public player: Player;
 	public isMove: boolean;
+	public isCollision: boolean = false;
 	public isCatch: boolean;
 	public moveX: number;
 	public moveY: number;
 	public speed: number;
 	public stop: () => void;
 	public catch: () => void;
+	public spr: g.Sprite;
 	
 	constructor(scene: g.Scene) {
 		super({
@@ -36,6 +38,7 @@ export class Ball extends g.Sprite {
 			y: -6
 		});
 		this.append(b);
+		this.spr = b;
 
 		this.stop = () => {
 			b.y = -6;

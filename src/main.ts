@@ -51,6 +51,7 @@ function main(): void {
 		"player_body",
 		"player_head",
 		"effect",
+		"title",
 		"button2",
 		"bgm",
 		"se_move",

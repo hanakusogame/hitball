@@ -91,19 +91,12 @@ export class Input extends g.E {
 		});
 		base.append(infoLabel);
 
-		//ヘルプ
-		const helpLabel = new Label({
+		//タイトル
+		const title = new g.Sprite({
 			scene: scene,
-			text: "ボールをぶつけ合うゲームです\rライフがなくなるか場外に出ると退場\r自機をクリックでボールが取れます\r最後まで生き残った人の勝ち",
-			textColor: "black",
-			width: 1000,
-			y: 150,
-			x: 20,
-			font: font,
-			fontSize: 45,
-			textAlign: g.TextAlign.Left
+			src: scene.assets["title"]
 		});
-		base.append(helpLabel);
+		base.append(title);
 
 		//人数制限
 		const playerLimit = new SelectBox(scene, font, 850, 100, "人数制限", ["20人", "30人", "40人", "無制限"], 0);

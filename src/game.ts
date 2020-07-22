@@ -56,7 +56,7 @@ export class Game extends g.E {
 			scene: scene,
 			font: font2,
 			fontSize: 24,
-			text: "ボールぶつけ",
+			text: "",
 			x: 220,
 			y: 6,
 			width: 200,
@@ -315,6 +315,9 @@ export class Game extends g.E {
 			const sec = Math.floor(timeLimit % 60);
 			labelTime.text = min + ":" + ('00' + sec).slice(-2);
 
+
+			playerE.children.sort((a, b) => a.y - b.y);
+
 			if (timeLimit <= 0) {
 				finish();
 				return;
@@ -327,7 +330,7 @@ export class Game extends g.E {
 				//botの時移動先を指定
 				if (!p.isHuman && !p.isMove) {
 					if (g.game.random.get(0, 50) === 0) {
-						if (g.game.random.get(0, 3) === 0 && !balls[0].isCatch && !balls[0].isMove) {
+						if (balls.length != 0 && g.game.random.get(0, 3) === 0 && !balls[0].isCatch && !balls[0].isMove) {
 							setMove(p.tag, balls[0].x, balls[0].y);//ボールに向かう
 						} else {
 							const x = g.game.random.get(50, 590);
@@ -339,7 +342,7 @@ export class Game extends g.E {
 
 				for (let i = 0; i < balls.length; i++) {
 					const ball = balls[i];
-					if (p.isCollision && !p.isDie && g.Collision.withinAreas(p, ball, 40) && !ball.isCatch) {
+					if (p.isCollision && !p.isDie && g.Collision.withinAreas(p, ball, 40) && !ball.isCatch && ball.isCollision) {
 						if (!ball.isMove || p.stateCatch === 1) {
 							if (!p.ball) {
 								//落ちている時と掴もうとしているとき掴む
@@ -643,18 +646,32 @@ export class Game extends g.E {
 				}
 			}
 
+			//ボール作成
 			for (let i = 0; i < input.ballNum; i++) {
 				const ball = new Ball(scene);
 				balls.push(ball);
 				ballE.append(balls[i]);
-				balls[i].x = g.game.random.get(200,460);
+				balls[i].x = g.game.random.get(200, 460);
+				balls[i].y = g.game.random.get(100, 200);
 				balls[i].modified();
+
+				ball.spr.y = -250;
+				ball.spr.scale(1.3);
+				ball.spr.modified();
+				ball.spr.opacity = 0;
+
+				timeline.create(ball.spr).scaleTo(1, 1, 2000).con().moveTo(0, -6, 2000)
+					.con().every((a,b) => {
+						ball.spr.opacity = b;
+					}, 2000).wait(1000).call(() => {
+						ball.isCollision = true;
+					});
 			}
 
-			scene.setTimeout(() => {
+			timeline.create(null).wait(1000).call(() => {
 				isStart = true;
 				playSound("se_start", seVol);
-			}, 1000);
+			});
 		};
 
 	}
