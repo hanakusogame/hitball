@@ -6,7 +6,7 @@ import { Ranking } from "./Ranking";
 
 export class Game extends g.E {
 
-	public start: (input:Input) => void;
+	public start: (input: Input) => void;
 
 	constructor(pram: g.EParameterObject) {
 		super(pram);
@@ -329,13 +329,21 @@ export class Game extends g.E {
 
 				//botの時移動先を指定
 				if (!p.isHuman && !p.isMove) {
-					if (g.game.random.get(0, 50) === 0) {
-						if (balls.length != 0 && g.game.random.get(0, 3) === 0 && !balls[0].isCatch && !balls[0].isMove) {
-							setMove(p.tag, balls[0].x, balls[0].y);//ボールに向かう
+					if (g.game.random.get(0, 50) === 0 || p.ball) {
+						if (balls.length != 0 && g.game.random.get(0, 3) === 0) {
+							const num = g.game.random.get(0, balls.length - 1);
+							if (!balls[num].isCatch && !balls[num].isMove) {
+								setMove(p.tag, balls[num].x, balls[num].y);//ボールに向かう
+							}
 						} else {
 							const x = g.game.random.get(50, 590);
 							const y = g.game.random.get(60, 320);
 							setMove(p.tag, x, y);//ランダム
+						}
+					} else if (g.game.random.get(0, 25) === 0) {
+						const arr = balls.filter(ball => ball.isMove && g.Collision.withinAreas(p, ball, 80));
+						if (arr.length !== 0) {
+							p.catch();
 						}
 					}
 				}
@@ -481,7 +489,7 @@ export class Game extends g.E {
 					p.stop();
 					//ボールを持っていたら投げる
 					if (p.ball) {
-						throwBall(p,p.ball);
+						throwBall(p, p.ball);
 					}
 				}
 
@@ -582,7 +590,7 @@ export class Game extends g.E {
 		});
 
 		//ゲーム開始
-		this.start = (input:Input) => {
+		this.start = (input: Input) => {
 
 			timeLimit = input.time * 60;
 
@@ -661,7 +669,7 @@ export class Game extends g.E {
 				ball.spr.opacity = 0;
 
 				timeline.create(ball.spr).scaleTo(1, 1, 2000).con().moveTo(0, -6, 2000)
-					.con().every((a,b) => {
+					.con().every((a, b) => {
 						ball.spr.opacity = b;
 					}, 2000).wait(1000).call(() => {
 						ball.isCollision = true;
