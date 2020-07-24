@@ -15,8 +15,9 @@ export class Input extends g.E {
 	public users: { [key: string]: string } = {};
 	public time: number = 3;
 	public life: number = 3;
-	public ballNum: number = 1;
-	public limit: number = 0;
+	public level: number = 1;
+	public ballNum: number = 2;
+	public limit: number = 3;
 	public endEvent: () => void;
 	public lastJoinPlayerId: string;
 
@@ -62,7 +63,9 @@ export class Input extends g.E {
 			fontSize: 32,
 			textAlign: g.TextAlign.Left
 		});
-		base.append(name);
+		if (!(typeof window !== "undefined" && window.RPGAtsumaru)) {
+			base.append(name);
+		}
 
 		const numLabel = new Label({
 			scene: scene,
@@ -99,12 +102,12 @@ export class Input extends g.E {
 		base.append(title);
 
 		//人数制限
-		const playerLimit = new SelectBox(scene, font, 850, 100, "人数制限", ["20人", "30人", "40人", "無制限"], 0);
+		const playerLimit = new SelectBox(scene, font, 850, 100, "人数制限", ["20人", "30人", "40人", "無制限"], 3);
 		base.append(playerLimit);
 		playerLimit.setNum = n => { this.limit = n };
 
 		//ボールの数変更用
-		const selectBall = new SelectBox(scene, font, 850, 250, "ボールの数", ["1個", "2個", "3個"], 0);
+		const selectBall = new SelectBox(scene, font, 850, 250, "ボールの数", ["1個", "2個", "3個"], 1);
 		base.append(selectBall);
 		selectBall.setNum = n => { this.ballNum = n + 1 };
 
@@ -118,6 +121,14 @@ export class Input extends g.E {
 		const selectTime = new SelectBox(scene, font, 850, 550, "時間制限", ["2:00", "3:00", "4:00", "5:00"], 1);
 		base.append(selectTime);
 		selectTime.setNum = n => { this.time = n + 2 };
+
+		//botの強さ
+		if (typeof window !== "undefined" && window.RPGAtsumaru) {
+			const selectLevel = new SelectBox(scene, font, 50, 550, "botの強さ", ["弱い", "普通", "強い"], 1);
+			selectLevel.user = 1;
+			base.append(selectLevel);
+			selectLevel.setNum = n => { this.level = n };
+		}
 
 		// マルチキーボードインスタンスの生成
 		const keyboard = new MultiKeyboard({

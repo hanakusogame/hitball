@@ -18,6 +18,7 @@ export class Game extends g.E {
 		let isStart = false;
 		let timeLimit = 120;
 		let dieCnt = 0; //死んだ数
+		let level = 0;
 
 		//背景
 		const bg = new g.FilledRect({
@@ -277,6 +278,13 @@ export class Game extends g.E {
 		const finish = () => {
 			isStart = false;
 			labelTime.text = "終了";
+			
+			if (timeLimit < 0 || selfPlayer.life === 0) timeLimit = 0;
+			const score = selfPlayer.life * 1000 + selfPlayer.hitCnt * 100 + Math.floor(timeLimit);
+			if (typeof window !== "undefined" && window.RPGAtsumaru) {
+				labelTime.text += ":" + score + "pt";
+			}
+
 			labelTime.invalidate();
 
 			const arr = Object.keys(players).map((key) => players[key]);
@@ -288,6 +296,13 @@ export class Game extends g.E {
 			});
 
 			playSound("se_timeup", seVol);
+
+			if (typeof window !== "undefined" && window.RPGAtsumaru) {
+				var scoreboards = window.RPGAtsumaru.scoreboards;
+				scoreboards.setRecord(level+1, score).then(function () {
+					scoreboards.display(level+1);
+				});
+			}
 		}
 
 		//投げる
@@ -315,7 +330,6 @@ export class Game extends g.E {
 			const sec = Math.floor(timeLimit % 60);
 			labelTime.text = min + ":" + ('00' + sec).slice(-2);
 
-
 			playerE.children.sort((a, b) => a.y - b.y);
 
 			if (timeLimit <= 0) {
@@ -340,10 +354,12 @@ export class Game extends g.E {
 							const y = g.game.random.get(60, 320);
 							setMove(p.tag, x, y);//ランダム
 						}
-					} else if (g.game.random.get(0, 25) === 0) {
-						const arr = balls.filter(ball => ball.isMove && g.Collision.withinAreas(p, ball, 80));
-						if (arr.length !== 0) {
-							p.catch();
+					} else {
+						if (level === 2 || (level === 1 && g.game.random.get(0, 20) === 0)) {
+							const arr = balls.filter(ball => ball.isMove && g.Collision.withinAreas(p, ball, 70));
+							if (arr.length !== 0) {
+								p.catch();
+							}
 						}
 					}
 				}
@@ -589,6 +605,8 @@ export class Game extends g.E {
 			g.game.raiseEvent(new g.MessageEvent({ msg: "catching", player: e.player }));
 		});
 
+		let selfPlayer: Player;
+
 		//ゲーム開始
 		this.start = (input: Input) => {
 
@@ -631,6 +649,10 @@ export class Game extends g.E {
 						cursorNow.x = player.x - 10;
 						cursorNow.y = player.y - 8;
 						cursorNow.modified();
+					}
+
+					if (p.id === input.lastJoinPlayerId) {
+						selfPlayer = player;
 					}
 				} else {
 					if (g.game.selfId == p.id) {
@@ -675,6 +697,8 @@ export class Game extends g.E {
 						ball.isCollision = true;
 					});
 			}
+
+			level = input.level;
 
 			timeline.create(null).wait(1000).call(() => {
 				isStart = true;

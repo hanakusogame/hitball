@@ -89,7 +89,6 @@ export class Ranking extends g.FilledRect {
 		}
 
 		this.setPlayers = (players) => {
-
 			//ソート
 			const ps = players.sort(function (a, b) {
 				return b.life - a.life || b.hitCnt - a.hitCnt;

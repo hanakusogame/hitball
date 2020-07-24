@@ -1,6 +1,7 @@
 export class SelectBox extends g.E {
 	public static lastJoinId:string
-	public setNum: (num:number) => void;
+	public setNum: (num: number) => void;
+	public user:number = 0;
 	constructor(scene: g.Scene, font: g.Font, x: number, y: number, title: string, arr: string[], public num: number = 0) {
 		super({
 			scene: scene,
@@ -59,8 +60,15 @@ export class SelectBox extends g.E {
 		});
 		this.append(sprRight);
 
+		const chkUser = (id:string) => {
+			if (this.user === 0) {
+				if (SelectBox.lastJoinId !== id) return false;
+			}
+			return true;
+		}
+
 		sprLeft.pointDown.add(e => {
-			if (SelectBox.lastJoinId !== e.player.id) return;
+			if (!chkUser(e.player.id)) return;
 			num = (num + arr.length - 1) % arr.length
 			label.text = arr[num];
 			label.invalidate();
@@ -68,7 +76,7 @@ export class SelectBox extends g.E {
 		});
 
 		sprRight.pointDown.add(e => {
-			if (SelectBox.lastJoinId !== e.player.id) return
+			if (!chkUser(e.player.id)) return
 			num = (num + 1) % arr.length
 			label.text = arr[num];
 			label.invalidate();
