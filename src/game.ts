@@ -1,3 +1,4 @@
+import { MainScene } from './MainScene';
 import { Input } from './Input';
 import { Timeline } from "@akashic-extension/akashic-timeline";
 import { Player } from "./player";
@@ -8,9 +9,8 @@ export class Game extends g.E {
 
 	public start: (input: Input) => void;
 
-	constructor(pram: g.EParameterObject) {
-		super(pram);
-		const scene = pram.scene;
+	constructor(scene: MainScene) {
+		super({ scene:scene});
 
 		const timeline = new Timeline(scene);
 		//プレイヤーのリスト
@@ -257,6 +257,7 @@ export class Game extends g.E {
 			scaleY: 0.5,
 			touchable: true
 		});
+		btnReset.hide();
 
 		const labelReset = new g.Label({
 			scene: scene,
@@ -265,13 +266,23 @@ export class Game extends g.E {
 			y: 15,
 			fontSize: 50,
 			textColor: "white",
-			text: "リセット"
+			text: "リトライ"
 		});
 		btnReset.append(labelReset);
 
+		const labelResetCnt = new g.Label({
+			scene: scene,
+			font: font2,
+			x: 0,
+			y: -50,
+			fontSize: 40,
+			textColor: "white",
+			text: ""
+		});
+		btnReset.append(labelResetCnt);
+
 		btnReset.pointDown.add(() => {
-			//this.destroy();
-			location.reload();//ブラウザ更新
+			scene.reset();
 		});
 
 		//終了処理
@@ -293,6 +304,8 @@ export class Game extends g.E {
 
 			timeline.create(ranking).moveY(30, 4000).call(() => {
 				ranking.setPlayers(arr);
+			}).call(() => {
+				btnReset.show();
 			});
 
 			playSound("se_timeup", seVol);
@@ -619,9 +632,9 @@ export class Game extends g.E {
 			const array: { id: string, name: string }[] = [];
 
 			//配列に変換
-			let ownerName = input.users[input.lastJoinPlayerId];
+			let ownerName = input.users[Input.lastJoinPlayerId];
 			for (let id in input.users) {
-				if (id === input.lastJoinPlayerId) continue;
+				if (id === Input.lastJoinPlayerId) continue;
 				array.push({ id: id, name: input.users[id] });
 			}
 
@@ -633,7 +646,7 @@ export class Game extends g.E {
 				array[r] = tmp;
 			}
 
-			array.unshift({ id: input.lastJoinPlayerId, name: ownerName });
+			array.unshift({ id: Input.lastJoinPlayerId, name: ownerName });
 			const playerLimit = (input.limit <= 2) ? (input.limit + 2) * 10 : 1000
 
 			//プレイヤー生成
@@ -651,7 +664,7 @@ export class Game extends g.E {
 						cursorNow.modified();
 					}
 
-					if (p.id === input.lastJoinPlayerId) {
+					if (p.id === Input.lastJoinPlayerId) {
 						selfPlayer = player;
 					}
 				} else {
@@ -699,6 +712,12 @@ export class Game extends g.E {
 			}
 
 			level = input.level;
+
+			if (g.game.selfId === Input.lastJoinPlayerId && Input.resetCnt > 0) {
+				labelResetCnt.text = "あと" + Input.resetCnt + "回";
+				labelResetCnt.invalidate();
+				this.append(btnReset);
+			}
 
 			timeline.create(null).wait(1000).call(() => {
 				isStart = true;

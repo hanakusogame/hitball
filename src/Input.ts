@@ -19,7 +19,8 @@ export class Input extends g.E {
 	public ballNum: number = 2;
 	public limit: number = 3;
 	public endEvent: () => void;
-	public lastJoinPlayerId: string;
+	static lastJoinPlayerId: string;
+	static resetCnt: number = 3;
 
 	constructor(pram: g.EParameterObject) {
 		super(pram);
@@ -186,7 +187,7 @@ export class Input extends g.E {
 
 					e.player.name = keyboard.text;
 
-					if (e.player.id !== this.lastJoinPlayerId && useLocalStorage()) {
+					if (e.player.id !== Input.lastJoinPlayerId && useLocalStorage()) {
 						localStorage.setItem('nickname', e.player.name);
 					}
 					g.game.raiseEvent(new g.MessageEvent({ msg: "rename", player: e.player }));
@@ -331,15 +332,19 @@ export class Input extends g.E {
 		});
 
 		g.game.join.add((ev) => {
-			this.lastJoinPlayerId = ev.player.id;
-			SelectBox.lastJoinId = this.lastJoinPlayerId;
+			Input.lastJoinPlayerId = ev.player.id;
+			SelectBox.lastJoinId = Input.lastJoinPlayerId;
 			if (g.game.selfId === ev.player.id) {
 				joinButton.show();
 			}
 		});
 
 		if (typeof window !== "undefined" && window.RPGAtsumaru) {
-			this.lastJoinPlayerId = g.game.selfId;
+			Input.lastJoinPlayerId = g.game.selfId;
+			joinButton.show();
+		}
+
+		if (g.game.selfId === Input.lastJoinPlayerId) {
 			joinButton.show();
 		}
 

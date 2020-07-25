@@ -812,6 +812,11 @@
 			"width": 840,
 			"height": 720,
 			"path": "image/title.png"
+		},
+		"MainScene": {
+			"type": "script",
+			"path": "script/MainScene.js",
+			"global": true
 		}
 	},
 	"environment": {

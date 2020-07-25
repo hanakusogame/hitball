@@ -7,7 +7,7 @@ export class Ranking extends g.FilledRect {
 			scene: scene,
 			width: 440,
 			height: 320,
-			x: 100,
+			x: 50,
 			y: -1000,
 			cssColor: "white"
 		});

@@ -1,3 +1,4 @@
+import { MainScene } from './MainScene';
 import { Input } from './Input';
 import { Label } from "@akashic-extension/akashic-label";
 import MultiKeyboard = require("./MultiKeyboard");
@@ -60,13 +61,15 @@ function main(): void {
 		"se_timeup"
 	);
 
-	const scene = new g.Scene({ game, assetIds });
+	const scene = new MainScene({ game, assetIds });
 
-	scene.loaded.add(() => {
-
-		const game = new Game({
-			scene: scene
+	scene.reset = () => {
+		scene.children.forEach(e => {
+			e.destroy();
 		});
+		scene.children.length = 0;
+
+		const game = new Game(scene);
 		scene.append(game);
 
 		const input = new Input({
@@ -78,8 +81,13 @@ function main(): void {
 			game.start(input);
 		};
 
-		scene.append(input);
+		Input.resetCnt--;
 
+		scene.append(input);
+	}
+
+	scene.loaded.add(() => {
+		scene.reset();
 	});
 	g.game.pushScene(scene);
 
