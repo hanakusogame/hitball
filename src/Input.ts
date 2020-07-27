@@ -19,8 +19,9 @@ export class Input extends g.E {
 	public ballNum: number = 2;
 	public limit: number = 3;
 	public endEvent: () => void;
-	static lastJoinPlayerId: string;
-	static resetCnt: number = 3;
+	public lastJoinPlayerId: string;
+	public resetCnt: number = 2;
+	public startEvent: () => void;
 
 	constructor(pram: g.EParameterObject) {
 		super(pram);
@@ -187,7 +188,7 @@ export class Input extends g.E {
 
 					e.player.name = keyboard.text;
 
-					if (e.player.id !== Input.lastJoinPlayerId && useLocalStorage()) {
+					if (e.player.id !== this.lastJoinPlayerId && useLocalStorage()) {
 						localStorage.setItem('nickname', e.player.name);
 					}
 					g.game.raiseEvent(new g.MessageEvent({ msg: "rename", player: e.player }));
@@ -232,7 +233,7 @@ export class Input extends g.E {
 		joinButton.append(labelState);
 
 		//グローバルイベントでプレイヤー情報追加
-		scene.message.add((msg) => {
+		this.message.add((msg) => {
 			// 関係ないイベントは無視して抜ける
 			if (!msg.data || !msg.data.player) return;
 
@@ -332,20 +333,33 @@ export class Input extends g.E {
 		});
 
 		g.game.join.add((ev) => {
-			Input.lastJoinPlayerId = ev.player.id;
-			SelectBox.lastJoinId = Input.lastJoinPlayerId;
+			this.lastJoinPlayerId = ev.player.id;
+			SelectBox.lastJoinId = this.lastJoinPlayerId;
 			if (g.game.selfId === ev.player.id) {
 				joinButton.show();
 			}
 		});
 
 		if (typeof window !== "undefined" && window.RPGAtsumaru) {
-			Input.lastJoinPlayerId = g.game.selfId;
+			this.lastJoinPlayerId = g.game.selfId;
 			joinButton.show();
 		}
 
-		if (g.game.selfId === Input.lastJoinPlayerId) {
-			joinButton.show();
+		this.startEvent = () => {
+			if (g.game.selfId === this.lastJoinPlayerId) {
+				labelState.tag = 0;
+				labelState.text = strStates[0];
+				labelState.invalidate();
+				joinButton.show();
+			} else {
+				joinButton.hide();
+			}
+			keyboardButton.hide();
+			name.text = "";
+			name.invalidate();
+			numLabel.text = "";
+			numLabel.invalidate()
+			this.users = {};
 		}
 
 	}

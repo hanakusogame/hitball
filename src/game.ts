@@ -10,11 +10,11 @@ export class Game extends g.E {
 	public start: (input: Input) => void;
 
 	constructor(scene: MainScene) {
-		super({ scene:scene});
+		super({ scene: scene });
 
 		const timeline = new Timeline(scene);
 		//プレイヤーのリスト
-		const players: { [key: string]: Player } = {};
+		let players: { [key: string]: Player } = {};
 		let isStart = false;
 		let timeLimit = 120;
 		let dieCnt = 0; //死んだ数
@@ -166,7 +166,7 @@ export class Game extends g.E {
 		}
 
 		//ランキング
-		const ranking = new Ranking(scene, font2);
+		let ranking = new Ranking(scene, font2);
 
 		//音声再生
 		const playSound = (name: string, vol: number) => {
@@ -281,15 +281,16 @@ export class Game extends g.E {
 		});
 		btnReset.append(labelResetCnt);
 
+		//リセット処理
 		btnReset.pointDown.add(() => {
-			scene.reset();
+			reset();
 		});
 
 		//終了処理
 		const finish = () => {
 			isStart = false;
 			labelTime.text = "終了";
-			
+
 			if (timeLimit < 0 || selfPlayer.life === 0) timeLimit = 0;
 			const score = selfPlayer.life * 1000 + selfPlayer.hitCnt * 100 + Math.floor(timeLimit);
 			if (typeof window !== "undefined" && window.RPGAtsumaru) {
@@ -301,6 +302,9 @@ export class Game extends g.E {
 			const arr = Object.keys(players).map((key) => players[key]);
 
 			this.append(ranking);
+			ranking.y = -1000;
+			ranking.modified();
+			ranking.base.hide();
 
 			timeline.create(ranking).moveY(30, 4000).call(() => {
 				ranking.setPlayers(arr);
@@ -312,8 +316,8 @@ export class Game extends g.E {
 
 			if (typeof window !== "undefined" && window.RPGAtsumaru) {
 				var scoreboards = window.RPGAtsumaru.scoreboards;
-				scoreboards.setRecord(level+1, score).then(function () {
-					scoreboards.display(level+1);
+				scoreboards.setRecord(level + 1, score).then(function () {
+					scoreboards.display(level + 1);
 				});
 			}
 		}
@@ -508,6 +512,8 @@ export class Game extends g.E {
 				p.modified();
 
 				if (g.game.selfId === key) {
+					cursorNext.show();
+					cursorNow.show();
 					cursorNow.moveTo(p.x - 10, p.y - 8);
 					cursorNow.modified();
 				}
@@ -570,7 +576,7 @@ export class Game extends g.E {
 		}
 
 		//グローバルイベント
-		scene.message.add((msg) => {
+		this.message.add((msg) => {
 			// 関係ないイベントは無視して抜ける
 			if (!msg.data || !msg.data.event) return;
 			const ev: { player: g.Player, point: g.CommonOffset } = msg.data.event;
@@ -578,7 +584,7 @@ export class Game extends g.E {
 		});
 
 		//キャッチできる状態にする(グローバルイベント)
-		scene.message.add((msg) => {
+		this.message.add((msg) => {
 			// 関係ないイベントは無視して抜ける
 			if (!msg.data || !msg.data.msg) return;
 			if (msg.data.msg === "catching") {
@@ -620,10 +626,63 @@ export class Game extends g.E {
 
 		let selfPlayer: Player;
 
-		//ゲーム開始
-		this.start = (input: Input) => {
+		//リセット
+		const reset = () => {
 
+			if (ranking.parent) ranking.remove();
+			btnReset.hide();
+			if (btnReset.parent) btnReset.remove();
+
+			for (let key in players) {
+				const player = players[key];
+				player.init();
+				player.x = g.game.random.get(30, 640 - 50 - 30);
+				player.y = g.game.random.get(50, 360 - 50 - 20);
+				player.modified();
+				playerE.append(player);
+
+				if (key === g.game.selfId) {
+					cursorNow.x = player.x - 10;
+					cursorNow.y = player.y - 8;
+					cursorNow.modified();
+					cursorNow.show();
+				}
+			}
+
+			balls.forEach(ball => {
+				ball.init();
+				ball.x = g.game.random.get(200, 460);
+				ball.y = g.game.random.get(100, 200);
+				ball.modified();
+			});
+
+			labelTime.text = "";
+			labelTime.invalidate();
+			labelInfo.text = "";
+			labelInfo.invalidate();
+
+			dieCnt = 0;
 			timeLimit = input.time * 60;
+			isStart = true;
+
+			if (g.game.selfId === input.lastJoinPlayerId && input.resetCnt > 0) {
+				labelResetCnt.text = "あと" + input.resetCnt + "回";
+				labelResetCnt.invalidate();
+				this.append(btnReset);
+			}
+
+			timeline.create(null).wait(1000).call(() => {
+				isStart = true;
+				playSound("se_start", seVol);
+			});
+
+			input.resetCnt--;
+		}
+
+		//ゲーム開始
+		let input: Input = null;
+		this.start = (inp: Input) => {
+			input = inp;
 
 			labelTime.text = input.time + ":00";
 			labelTime.invalidate();
@@ -632,9 +691,9 @@ export class Game extends g.E {
 			const array: { id: string, name: string }[] = [];
 
 			//配列に変換
-			let ownerName = input.users[Input.lastJoinPlayerId];
+			let ownerName = input.users[input.lastJoinPlayerId];
 			for (let id in input.users) {
-				if (id === Input.lastJoinPlayerId) continue;
+				if (id === input.lastJoinPlayerId) continue;
 				array.push({ id: id, name: input.users[id] });
 			}
 
@@ -646,7 +705,7 @@ export class Game extends g.E {
 				array[r] = tmp;
 			}
 
-			array.unshift({ id: Input.lastJoinPlayerId, name: ownerName });
+			array.unshift({ id: input.lastJoinPlayerId, name: ownerName });
 			const playerLimit = (input.limit <= 2) ? (input.limit + 2) * 10 : 1000
 
 			//プレイヤー生成
@@ -655,16 +714,9 @@ export class Game extends g.E {
 					const name = p.name;
 					const player = new Player(scene, p.id, name, input.life, true, font);
 
-					playerE.append(player);
 					players[p.id] = player;
 
-					if (p.id === g.game.selfId) {
-						cursorNow.x = player.x - 10;
-						cursorNow.y = player.y - 8;
-						cursorNow.modified();
-					}
-
-					if (p.id === Input.lastJoinPlayerId) {
+					if (p.id === input.lastJoinPlayerId) {
 						selfPlayer = player;
 					}
 				} else {
@@ -684,6 +736,7 @@ export class Game extends g.E {
 					const name = "bot" + (i + 1);
 					const id = "" + i;
 					const player = new Player(scene, id, name, input.life, false, font);
+					player.init();
 					playerE.append(player);
 					players[id] = player;
 				}
@@ -694,35 +747,10 @@ export class Game extends g.E {
 				const ball = new Ball(scene);
 				balls.push(ball);
 				ballE.append(balls[i]);
-				balls[i].x = g.game.random.get(200, 460);
-				balls[i].y = g.game.random.get(100, 200);
-				balls[i].modified();
-
-				ball.spr.y = -250;
-				ball.spr.scale(1.3);
-				ball.spr.modified();
-				ball.spr.opacity = 0;
-
-				timeline.create(ball.spr).scaleTo(1, 1, 2000).con().moveTo(0, -6, 2000)
-					.con().every((a, b) => {
-						ball.spr.opacity = b;
-					}, 2000).wait(1000).call(() => {
-						ball.isCollision = true;
-					});
 			}
 
 			level = input.level;
-
-			if (g.game.selfId === Input.lastJoinPlayerId && Input.resetCnt > 0) {
-				labelResetCnt.text = "あと" + Input.resetCnt + "回";
-				labelResetCnt.invalidate();
-				this.append(btnReset);
-			}
-
-			timeline.create(null).wait(1000).call(() => {
-				isStart = true;
-				playSound("se_start", seVol);
-			});
+			reset();
 		};
 
 	}

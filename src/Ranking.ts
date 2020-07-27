@@ -2,6 +2,7 @@ import { Player } from "./player";
 
 export class Ranking extends g.FilledRect {
 	public setPlayers: (players: Player[]) => void;
+	public base: g.E;
 	constructor(scene: g.Scene, font: g.Font) {
 		super({
 			scene: scene,
@@ -53,6 +54,12 @@ export class Ranking extends g.FilledRect {
 		});
 		this.append(line);
 
+		const base = new g.E({
+			scene: scene
+		});
+		this.append(base);
+		this.base = base;
+
 		for (let i = 0; i < 5; i++) {
 			let label = new g.Label({
 				scene: scene,
@@ -62,7 +69,7 @@ export class Ranking extends g.FilledRect {
 				x: 10,
 				y: i * 60 + 40
 			});
-			this.append(label);
+			base.append(label);
 			numLabels.push(label);
 
 			label = new g.Label({
@@ -73,7 +80,7 @@ export class Ranking extends g.FilledRect {
 				x: 120,
 				y: i * 60 + 40
 			});
-			this.append(label);
+			base.append(label);
 			nameLabels.push(label);
 
 			label = new g.Label({
@@ -84,11 +91,12 @@ export class Ranking extends g.FilledRect {
 				x: 360,
 				y: i * 60 + 40
 			});
-			this.append(label);
+			base.append(label);
 			hitLabels.push(label);
 		}
 
 		this.setPlayers = (players) => {
+			base.show();
 			//ソート
 			const ps = players.sort(function (a, b) {
 				return b.life - a.life || b.hitCnt - a.hitCnt;
@@ -100,7 +108,7 @@ export class Ranking extends g.FilledRect {
 				ps[i].show();
 				ps[i].x = 50;
 				ps[i].y = i * 60 + 30;
-				this.append(ps[i]);
+				base.append(ps[i]);
 				ps[i].setRanking();
 
 				let label = numLabels[i];

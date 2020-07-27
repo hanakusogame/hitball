@@ -11,6 +11,7 @@ export class Player extends g.E {
 	public speed: number;//移動速度
 	public setAngle: (x: number) => void;
 	public direction: number; //向き
+	public init: () => void;
 	public stop: () => void;
 	public move: () => void;
 	public catch: () => void;
@@ -27,28 +28,12 @@ export class Player extends g.E {
 
 		super({
 			scene: scene,
-			x: g.game.random.get(30, 640 - 50 - 30),
-			y: g.game.random.get(50, 360 - 50 - 20),
 			width: 50,
 			height: 50,
 			tag: userid
 		});
 
-		this.isMove = false;
-		this.isCollision = true;
-		this.stateCatch = 0;
-		this.ball = null;
-		this.name = name;
-		this.life = life;
-		this.isDie = false;
-		this.hitCnt = 0;
-		this.isHuman = isHuman;
-		this.time = 0;
-		this.direction = 0;
-		this.radian = 0;
-		this.distance = 0;
-		this.speed = 0;
-		this.time = 0;
+		let isEnd = false;
 
 		//体のフレームをライフによって変えて取得
 		const getFrames: (arr: number[]) => number[] = (arr) => {
@@ -119,6 +104,42 @@ export class Player extends g.E {
 		} else if(!isHuman){
 			labelName.textColor = "white";
 			labelName.invalidate();
+		}
+
+		//初期化
+		this.init = () => {
+			this.isMove = false;
+			this.isCollision = true;
+			this.stateCatch = 0;
+			this.ball = null;
+			this.name = name;
+			this.life = life;
+			this.isDie = false;
+			this.hitCnt = 0;
+			this.isHuman = isHuman;
+			this.time = 0;
+			this.direction = 0;
+			this.radian = 0;
+			this.distance = 0;
+			this.speed = 0;
+			this.time = 0;
+
+			isEnd = false;
+
+			body.frames = getFrames([1, 3]);
+			body.frameNumber = 0;
+			body.modified();
+
+			head.y = -27;
+			head.x = 0;
+			head.angle = 0;
+			head.frames = [1, 3];
+			head.frameNumber = 0;
+			head.modified();
+
+			labelName.show();
+
+			this.show();
 		}
 
 		//方向転換
@@ -212,16 +233,14 @@ export class Player extends g.E {
 			this.life = 0;
 		}
 
-		let isEnd = false;
-
 		this.update.add(() => {
 			if (this.isDie && !isEnd) {
 				if (head.y < 5) {
 					head.y += 3;
 					head.modified();
 				} else {
-					head.x += (this.direction * 0.2);
-					head.angle += (this.direction);
+					head.x += 0.2;
+					head.angle++;
 					head.modified();
 				}
 			}

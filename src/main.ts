@@ -62,33 +62,6 @@ function main(): void {
 	);
 
 	const scene = new MainScene({ game, assetIds });
-
-	scene.reset = () => {
-		scene.children.forEach(e => {
-			e.destroy();
-		});
-		scene.children.length = 0;
-
-		const game = new Game(scene);
-		scene.append(game);
-
-		const input = new Input({
-			scene: scene
-		});
-
-		input.endEvent = () => {
-			input.hide();
-			game.start(input);
-		};
-
-		Input.resetCnt--;
-
-		scene.append(input);
-	}
-
-	scene.loaded.add(() => {
-		scene.reset();
-	});
 	g.game.pushScene(scene);
 
 }
