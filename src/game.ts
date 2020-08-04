@@ -74,10 +74,21 @@ export class Game extends g.E {
 			fontSize: 20,
 			text: "",
 			x: 35,
-			y: 5,
+			y: 7,
 			textColor: "white"
 		});
 		this.append(labelInfo);
+
+		const labelPlayerCnt = new g.Label({
+			scene: scene,
+			font: font2,
+			fontSize: 22,
+			text: "",
+			x: 435,
+			y: 6,
+			textColor: "white"
+		});
+		this.append(labelPlayerCnt);
 
 		//情報表示
 		const labelDefeat = new g.Label({
@@ -175,76 +186,6 @@ export class Game extends g.E {
 			return audio;
 		}
 
-		//BGMの切り替えボタン
-		const bgm = playSound("bgm", 0.2);
-		const buttonBGM = new g.FilledRect({
-			scene: scene,
-			x: 450,
-			y: 5,
-			width: 80,
-			height: 30,
-			cssColor: "white",
-			touchable: true,
-			local: true
-		});
-		localE.append(buttonBGM);
-
-		buttonBGM.pointDown.add(() => {
-			if (buttonBGM.cssColor === "white") {
-				bgm._changeMuted(true);
-				buttonBGM.cssColor = "gray"
-			} else {
-				bgm._changeMuted(false);
-				buttonBGM.cssColor = "white"
-			}
-			buttonBGM.modified();
-		});
-
-		const labelBGM = new g.Label({
-			scene: scene,
-			font: font2,
-			x: 14,
-			y: 2,
-			fontSize: 20,
-			text: "BGM"
-		});
-		buttonBGM.append(labelBGM);
-
-		//SEの切り替えボタン
-		let seVol = 1.0;
-		const buttonSE = new g.FilledRect({
-			scene: scene,
-			x: 550,
-			y: 5,
-			width: 80,
-			height: 30,
-			cssColor: "white",
-			touchable: true,
-			local: true
-		});
-		localE.append(buttonSE);
-
-		const labelSE = new g.Label({
-			scene: scene,
-			font: font2,
-			x: 25,
-			y: 2,
-			fontSize: 20,
-			text: "SE"
-		});
-		buttonSE.append(labelSE);
-
-		buttonSE.pointDown.add(() => {
-			if (buttonSE.cssColor === "white") {
-				seVol = 0;
-				buttonSE.cssColor = "gray"
-			} else {
-				seVol = 1;
-				buttonSE.cssColor = "white"
-			}
-			buttonSE.modified();
-		});
-
 		//リセットボタン
 		const btnReset = new g.Sprite({
 			scene: scene,
@@ -312,7 +253,7 @@ export class Game extends g.E {
 				btnReset.show();
 			});
 
-			playSound("se_timeup", seVol);
+			playSound("se_timeup", input.seVol);
 
 			if (typeof window !== "undefined" && window.RPGAtsumaru) {
 				var scoreboards = window.RPGAtsumaru.scoreboards;
@@ -335,7 +276,7 @@ export class Game extends g.E {
 			p.isCollision = false;
 			scene.setTimeout(() => { p.isCollision = true }, 700);
 
-			playSound("se_move", seVol * 0.5);
+			playSound("se_move", input.seVol * 0.5);
 		};
 
 		//ゲームループ
@@ -399,7 +340,7 @@ export class Game extends g.E {
 									cursorNext.modified();
 								}
 
-								playSound("se_move", seVol);
+								playSound("se_move", input.seVol);
 							}
 
 						} else {
@@ -456,6 +397,9 @@ export class Game extends g.E {
 									if (dieCnt >= Object.keys(players).length - 1) {
 										finish();
 									}
+
+									labelPlayerCnt.text = "残り" + (Object.keys(players).length - dieCnt) + "人";
+									labelPlayerCnt.invalidate();
 								} else {
 									labelInfo.textColor = "yellow";
 									labelInfo.text = "HIT " + p.name;
@@ -475,7 +419,7 @@ export class Game extends g.E {
 							p.stop();
 							p.hit(ball.moveX);
 
-							playSound("se_hit", seVol * 0.5);
+							playSound("se_hit", input.seVol * 0.5);
 						}
 					}
 
@@ -673,8 +617,11 @@ export class Game extends g.E {
 
 			timeline.create(null).wait(1000).call(() => {
 				isStart = true;
-				playSound("se_start", seVol);
+				playSound("se_start", input.seVol);
 			});
+
+			labelPlayerCnt.text = "残り" + (Object.keys(players).length) + "人";
+			labelPlayerCnt.invalidate();
 
 			input.resetCnt--;
 		}
@@ -741,6 +688,7 @@ export class Game extends g.E {
 					players[id] = player;
 				}
 			}
+
 
 			//ボール作成
 			for (let i = 0; i < input.ballNum; i++) {

@@ -22,6 +22,7 @@ export class Input extends g.E {
 	public lastJoinPlayerId: string;
 	public resetCnt: number = 2;
 	public startEvent: () => void;
+	public seVol: number;
 
 	constructor(pram: g.EParameterObject) {
 		super(pram);
@@ -44,14 +45,6 @@ export class Input extends g.E {
 			fontFamily: g.FontFamily.SansSerif,
 			size: 50,
 			fontWeight: 1
-		});
-
-		const glyph = JSON.parse((scene.assets["notosansGlyph"] as g.TextAsset).data);
-		const keyboardFont = new g.BitmapFont({
-			src: scene.assets["notosansFont"],
-			map: glyph,
-			defaultGlyphWidth: 72,
-			defaultGlyphHeight: 72
 		});
 
 		const name = new Label({
@@ -102,6 +95,78 @@ export class Input extends g.E {
 			src: scene.assets["title"]
 		});
 		base.append(title);
+
+		const bgm = (scene.assets["bgm"] as g.AudioAsset).play();
+		bgm.changeVolume(0.2);
+
+		//BGMの切り替えボタン
+		const buttonBGM = new g.FilledRect({
+			scene: scene,
+			x: 900,
+			y: 10,
+			width: 160,
+			height: 60,
+			cssColor: "white",
+			touchable: true,
+			local: true
+		});
+		base.append(buttonBGM);
+
+		buttonBGM.pointDown.add(() => {
+			if (buttonBGM.cssColor === "white") {
+				bgm._changeMuted(true);
+				buttonBGM.cssColor = "gray"
+			} else {
+				bgm._changeMuted(false);
+				buttonBGM.cssColor = "white"
+			}
+			buttonBGM.modified();
+		});
+
+		const labelBGM = new g.Label({
+			scene: scene,
+			font: font,
+			x: 28,
+			y: 4,
+			fontSize: 40,
+			text: "BGM"
+		});
+		buttonBGM.append(labelBGM);
+
+		//SEの切り替えボタン
+		this.seVol = 0.7;
+		const buttonSE = new g.FilledRect({
+			scene: scene,
+			x: 1100,
+			y: 10,
+			width: 160,
+			height: 60,
+			cssColor: "white",
+			touchable: true,
+			local: true
+		});
+		base.append(buttonSE);
+
+		const labelSE = new g.Label({
+			scene: scene,
+			font: font,
+			x: 50,
+			y: 4,
+			fontSize: 40,
+			text: "SE"
+		});
+		buttonSE.append(labelSE);
+
+		buttonSE.pointDown.add(() => {
+			if (buttonSE.cssColor === "white") {
+				this.seVol = 0;
+				buttonSE.cssColor = "gray"
+			} else {
+				this.seVol = 0.8;
+				buttonSE.cssColor = "white"
+			}
+			buttonSE.modified();
+		});
 
 		//人数制限
 		const playerLimit = new SelectBox(scene, font, 850, 100, "人数制限", ["20人", "30人", "40人", "無制限"], 3);
@@ -277,6 +342,7 @@ export class Input extends g.E {
 			}
 		});
 
+		//ローカルストレージ 利用可否判定
 		const useLocalStorage = () => {
 			try {
 				if (typeof window.localStorage !== 'undefined') {
@@ -316,7 +382,7 @@ export class Input extends g.E {
 				labelState.invalidate();
 
 				if (useLocalStorage()) {
-					e.player.name = localStorage.getItem('nickname');
+					e.player.name = localStorage.getItem('nickname').substr(0,8);
 				}
 
 				g.game.raiseEvent(new g.MessageEvent({ msg: "add", player: e.player }));
