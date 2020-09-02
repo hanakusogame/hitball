@@ -561,11 +561,12 @@ export class Game extends g.E {
 		});
 
 		//掴める状態にする
-		cursorNow.pointDown.add(e => {
-			if (!isStart) return;
+		cursorNow.pointDown.add(ev => {
+			const p = players[ev.player.id];
+			if (!isStart || !p || !p.isCollision || p.isDie) return;
 
 			//グローバルイベント
-			g.game.raiseEvent(new g.MessageEvent({ msg: "catching", player: e.player }));
+			g.game.raiseEvent(new g.MessageEvent({ msg: "catching", player: ev.player }));
 		});
 
 		let selfPlayer: Player;

@@ -319,7 +319,7 @@ export class Input extends g.E {
 					name.invalidate();
 				}
 
-				numLabel.text = (num + 1) + "人";
+				numLabel.text = Object.keys(this.users).length + "人";
 				numLabel.invalidate();
 
 				if (msg.data.msg === "start") {
