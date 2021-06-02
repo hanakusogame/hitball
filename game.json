@@ -823,7 +823,7 @@
 		"sandbox-runtime": "2",
 		"niconico": {
 			"supportedModes": [
-				"multi"
+				"multi_admission"
 			]
 		}
 	},
